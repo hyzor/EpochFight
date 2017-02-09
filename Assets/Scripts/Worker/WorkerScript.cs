@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class WorkerScript : MonoBehaviour {
     private const int maxResources = 5;
-    private const int collectingTime = 3; // In seconds
+    private const int collectingTime = 1; // In seconds
 
     public float speed;
     private int numResources;
@@ -62,8 +62,9 @@ public class WorkerScript : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         // Status text should always face camera
-        textMesh.transform.LookAt(Camera.main.transform);
-        textMesh.transform.Rotate(Vector3.up - new Vector3(0, 180, 0)); // Text is mirrored so flip it back
+        //textMesh.transform.LookAt(Camera.main.transform);
+        textMesh.transform.rotation = Camera.main.transform.rotation;
+        //textMesh.transform.Rotate(Vector3.up - new Vector3(0, 180, 0)); // Text is mirrored so flip it back
 
         // Automatic queueing if not busy
         if (!isBusy)
@@ -193,10 +194,10 @@ public class WorkerScript : MonoBehaviour {
 
         do
         {
+            yield return new WaitForSeconds(collectingTime);
             numResources++;
+            UpdateStatusText();
         } while (numResources < maxResources);
-
-        yield return new WaitForSeconds(3);
 
         curState = (int)state.IDLE;
         isBusy = false;
