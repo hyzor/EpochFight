@@ -19,9 +19,19 @@ public class WorkerScript : MonoBehaviour {
     private Animator anim;
     private CanvasTextScript canvasTextScript;
 
-    private Queue<int> taskQueue;
+    public struct Task
+    {
+        public int taskId;
+        public Vector3 worldPos;
+
+        public Task(int taskId, Vector3 worldPos)
+        {
+            this.taskId = taskId;
+            this.worldPos = worldPos;
+        }
+    }
     
-    public enum task
+    public enum tasks
     {
         IDLE = 0,
         COLLECT = 1,
@@ -35,17 +45,23 @@ public class WorkerScript : MonoBehaviour {
         TRAVELING = 2
     }
 
-    public int curTaskAssigned;
+    //public int curTaskAssigned;
     public int curState;
     bool isBusy;
 
-	// Use this for initialization
-	void Start () {
+    private Task curTaskAssigned;
+
+    private Queue<Task> taskQueue;
+
+    // Use this for initialization
+    void Start () {
         agent = GetComponent<NavMeshAgent>();
-        curTaskAssigned = (int)task.IDLE;
+        //curTaskAssigned = (int)tasks.IDLE;
+        curTaskAssigned = new Task((int)tasks.IDLE, this.transform.position);
+
         curState = (int)state.IDLE;
 
-		taskQueue = new Queue<int>();
+		taskQueue = new Queue<Task>();
         textMesh = (TextMesh)GetComponentInChildren(typeof(TextMesh));
         isBusy = false;
         anim = GetComponent<Animator>();
@@ -69,16 +85,19 @@ public class WorkerScript : MonoBehaviour {
         // Automatic queueing if not busy
         if (!isBusy)
         {
-            switch (curTaskAssigned)
+            switch (curTaskAssigned.taskId)
             {
-                case (int)task.IDLE:
-                    taskQueue.Enqueue((int)task.COLLECT);
+                case (int)tasks.IDLE:
+                    //taskQueue.Enqueue((int)tasks.COLLECT);
+                    taskQueue.Enqueue(new Task((int)tasks.COLLECT, resTarget.position));
                     break;
-                case (int)task.COLLECT:
-                    taskQueue.Enqueue((int)task.CARRY);
+                case (int)tasks.COLLECT:
+                    //taskQueue.Enqueue((int)tasks.CARRY);
+                    taskQueue.Enqueue(new Task((int)tasks.CARRY, baseTarget.position));
                     break;
-                case (int)task.CARRY:
-                    taskQueue.Enqueue((int)task.IDLE);
+                case (int)tasks.CARRY:
+                    //taskQueue.Enqueue((int)tasks.IDLE);
+                    taskQueue.Enqueue(new Task((int)tasks.IDLE, this.transform.position));
                     break;
                 default:
                     break;
@@ -87,45 +106,48 @@ public class WorkerScript : MonoBehaviour {
 
         // Begin with new task if available
         if (curState == (int)state.IDLE && taskQueue.Count > 0)
-            BeginTask(taskQueue.Dequeue());
+        {
+            Task task = taskQueue.Dequeue();
+            BeginTask(ref task);
+        }
 
         // Check if we have reached the tasks' destination
         if (HasReachedTarget() && curState != (int)state.WORKING)
-            OnDestReached(curTaskAssigned);
+            OnDestReached(ref curTaskAssigned);
     }
 
-    void BeginTask(int _task)
+    void BeginTask(ref Task _task)
     {
         curTaskAssigned = _task;
 
-        switch (_task)
+        switch (_task.taskId)
         {
-            case (int)task.IDLE:
+            case (int)tasks.IDLE:
                 // Idle animation
                 anim.SetFloat("Speed_f", 0.0f);
                 anim.SetInteger("MeleeType_int", 1);
                 anim.SetInteger("WeaponType_int", 1);
 
                 curState = (int)state.IDLE;
-                agent.SetDestination(this.transform.position);
+                agent.SetDestination(_task.worldPos);
                 break;
-            case (int)task.COLLECT:
+            case (int)tasks.COLLECT:
                 // Running animation
                 anim.SetFloat("Speed_f", 1.0f);
                 anim.SetInteger("MeleeType_int", 12);
                 anim.SetInteger("WeaponType_int", 12);
 
                 curState = (int)state.TRAVELING;
-                agent.SetDestination(resTarget.position);
+                agent.SetDestination(_task.worldPos);
                 break;
-            case (int)task.CARRY:
+            case (int)tasks.CARRY:
                 // Running animation
                 anim.SetFloat("Speed_f", 1.0f);
                 anim.SetInteger("MeleeType_int", 12);
                 anim.SetInteger("WeaponType_int", 12);
 
                 curState = (int)state.TRAVELING;
-                agent.SetDestination(baseTarget.position);
+                agent.SetDestination(_task.worldPos);
                 break;
             default:
                 break;
@@ -137,29 +159,29 @@ public class WorkerScript : MonoBehaviour {
 
     void UpdateStatusText()
     {
-        switch (curTaskAssigned)
+        switch (curTaskAssigned.taskId)
         {
-            case (int)task.IDLE:
+            case (int)tasks.IDLE:
                 textMesh.text = "Idle";
                 break;
-            case (int)task.COLLECT:
+            case (int)tasks.COLLECT:
                 if (curState == (int)state.TRAVELING)
-                    textMesh.text = "Traveling to collect";
+                    textMesh.text = "[Collect] Traveling to " + curTaskAssigned.worldPos;
                 else
-                    textMesh.text = "Collecting (" + numResources + ")";
+                    textMesh.text = "[Collect] Working... (" + numResources + ")";
 
                 break;
-            case (int)task.CARRY:
-                textMesh.text = "Carrying (" + numResources + ")";
+            case (int)tasks.CARRY:
+                textMesh.text = "Carrying (" + numResources + ") to " + curTaskAssigned.worldPos;
                 break;
             default:
                 break;
         }
     }
 
-    void OnDestReached(int _task)
+    void OnDestReached(ref Task _task)
     {
-		if (_task == (int)task.COLLECT)
+		if (_task.taskId == (int)tasks.COLLECT)
         {
             curState = (int)state.WORKING;
             UpdateStatusText();
@@ -171,7 +193,7 @@ public class WorkerScript : MonoBehaviour {
 
             StartCoroutine(CollectResource());
         }
-        else if (_task == (int)task.CARRY)
+        else if (_task.taskId == (int)tasks.CARRY)
         {
             curState = (int)state.WORKING;
 
@@ -181,7 +203,7 @@ public class WorkerScript : MonoBehaviour {
             curState = (int)state.IDLE;
             isBusy = false;
         }
-        else if (_task == (int)task.IDLE)
+        else if (_task.taskId == (int)tasks.IDLE)
         {
             curState = (int)state.IDLE;
             isBusy = false;
