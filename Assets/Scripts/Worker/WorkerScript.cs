@@ -1,9 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Threading;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public class WorkerScript : MonoBehaviour {
     private const int maxResources = 5;
@@ -17,137 +16,94 @@ public class WorkerScript : MonoBehaviour {
     private NavMeshAgent agent;
     private TextMesh textMesh;
     private Animator anim;
-    private CanvasTextScript canvasTextScript;
+    private GameObject resourceCanvasElement;
 
-    public struct Task
-    {
-        public int taskId;
-        public Vector3 worldPos;
-
-        public Task(int taskId, Vector3 worldPos)
-        {
-            this.taskId = taskId;
-            this.worldPos = worldPos;
-        }
-    }
-    
-    public enum tasks
-    {
-        IDLE = 0,
-        COLLECT = 1,
-        CARRY = 2
-    }
-
-    public enum state
-    {
-        IDLE = 0,
-        WORKING = 1,
-        TRAVELING = 2
-    }
+    private UnitTaskManager taskMgr;
 
     //public int curTaskAssigned;
     public int curState;
     bool isBusy;
 
-    private Task curTaskAssigned;
-
-    private Queue<Task> taskQueue;
+    private BaseTask curTaskAssigned;
 
     // Use this for initialization
     void Start () {
         agent = GetComponent<NavMeshAgent>();
-        //curTaskAssigned = (int)tasks.IDLE;
-        curTaskAssigned = new Task((int)tasks.IDLE, this.transform.position);
 
-        curState = (int)state.IDLE;
-
-		taskQueue = new Queue<Task>();
+        //curState = (int)state.IDLE;
+        
         textMesh = (TextMesh)GetComponentInChildren(typeof(TextMesh));
         isBusy = false;
         anim = GetComponent<Animator>();
 
-        Transform canvasTextTrans = GameObject.Find("Canvas").transform.GetChild(0);
-        canvasTextScript = canvasTextTrans.GetComponent<CanvasTextScript>();
+        Transform canvasResourceTextTrans = GameObject.Find("Canvas").transform.GetChild(0);
+        resourceCanvasElement = canvasResourceTextTrans.gameObject;
         
         // Running animation
         anim.SetFloat("Speed_f", 1.0f);
         anim.SetInteger("MeleeType_int", 12);
         anim.SetInteger("WeaponType_int", 12);
+
+        taskMgr = GetComponent<UnitTaskManager>();
     }
 	
 	// Update is called once per frame
 	void Update () {
         // Status text should always face camera
-        //textMesh.transform.LookAt(Camera.main.transform);
         textMesh.transform.rotation = Camera.main.transform.rotation;
-        //textMesh.transform.Rotate(Vector3.up - new Vector3(0, 180, 0)); // Text is mirrored so flip it back
 
-        // Automatic queueing if not busy
-        if (!isBusy)
-        {
-            switch (curTaskAssigned.taskId)
-            {
-                case (int)tasks.IDLE:
-                    //taskQueue.Enqueue((int)tasks.COLLECT);
-                    taskQueue.Enqueue(new Task((int)tasks.COLLECT, resTarget.position));
-                    break;
-                case (int)tasks.COLLECT:
-                    //taskQueue.Enqueue((int)tasks.CARRY);
-                    taskQueue.Enqueue(new Task((int)tasks.CARRY, baseTarget.position));
-                    break;
-                case (int)tasks.CARRY:
-                    //taskQueue.Enqueue((int)tasks.IDLE);
-                    taskQueue.Enqueue(new Task((int)tasks.IDLE, this.transform.position));
-                    break;
-                default:
-                    break;
-            }
-        }
+        //ExecuteEvents.Execute<ITaskMessageHandler>(taskMgr, null, (x, y) => x.OnClick(x, y, z));
 
         // Begin with new task if available
-        if (curState == (int)state.IDLE && taskQueue.Count > 0)
-        {
-            Task task = taskQueue.Dequeue();
-            BeginTask(ref task);
-        }
+        //if (curState == (int)state.IDLE && !isBusy)
+        //{
+            //Task task = taskQueue.Dequeue();
+            //BaseTask task = taskMgr.GetFirstTask();
+
+            //if (task != null)
+                //BeginTask(ref task);
+        //}
 
         // Check if we have reached the tasks' destination
-        if (HasReachedTarget() && curState != (int)state.WORKING)
-            OnDestReached(ref curTaskAssigned);
+        if (curTaskAssigned != null)
+        {
+            //if (HasReachedTarget() && curState != (int)state.WORKING)
+                //OnDestReached(ref curTaskAssigned);
+        }
     }
 
-    void BeginTask(ref Task _task)
+    /*void BeginTask(ref BaseTask _task)
     {
         curTaskAssigned = _task;
 
-        switch (_task.taskId)
+        switch (_task.taskTypeId)
         {
-            case (int)tasks.IDLE:
+            case (int)BaseTask.tasks.IDLE:
                 // Idle animation
                 anim.SetFloat("Speed_f", 0.0f);
                 anim.SetInteger("MeleeType_int", 1);
                 anim.SetInteger("WeaponType_int", 1);
 
                 curState = (int)state.IDLE;
-                agent.SetDestination(_task.worldPos);
+                agent.SetDestination(_task.goTo);
                 break;
-            case (int)tasks.COLLECT:
+            case (int)BaseTask.tasks.COLLECT:
                 // Running animation
                 anim.SetFloat("Speed_f", 1.0f);
                 anim.SetInteger("MeleeType_int", 12);
                 anim.SetInteger("WeaponType_int", 12);
 
                 curState = (int)state.TRAVELING;
-                agent.SetDestination(_task.worldPos);
+                agent.SetDestination(_task.goTo);
                 break;
-            case (int)tasks.CARRY:
+            case (int)BaseTask.tasks.CARRY:
                 // Running animation
                 anim.SetFloat("Speed_f", 1.0f);
                 anim.SetInteger("MeleeType_int", 12);
                 anim.SetInteger("WeaponType_int", 12);
 
                 curState = (int)state.TRAVELING;
-                agent.SetDestination(_task.worldPos);
+                agent.SetDestination(_task.goTo);
                 break;
             default:
                 break;
@@ -155,33 +111,36 @@ public class WorkerScript : MonoBehaviour {
 
 		UpdateStatusText();
         isBusy = true;
-    }
+    }*/
 
-    void UpdateStatusText()
+    /*void UpdateStatusText()
     {
-        switch (curTaskAssigned.taskId)
+        switch (curTaskAssigned.taskTypeId)
         {
-            case (int)tasks.IDLE:
+            case (int)BaseTask.tasks.IDLE:
                 textMesh.text = "Idle";
                 break;
-            case (int)tasks.COLLECT:
+            case (int)BaseTask.tasks.COLLECT:
                 if (curState == (int)state.TRAVELING)
-                    textMesh.text = "[Collect] Traveling to " + curTaskAssigned.worldPos;
+                    textMesh.text = "[Collect] Traveling to " + curTaskAssigned.goTo;
                 else
-                    textMesh.text = "[Collect] Working... (" + numResources + ")";
+                    textMesh.text = "[Collect] (" + numResources + ") Working...";
 
                 break;
-            case (int)tasks.CARRY:
-                textMesh.text = "Carrying (" + numResources + ") to " + curTaskAssigned.worldPos;
+            case (int)BaseTask.tasks.CARRY:
+                if (curState == (int)state.TRAVELING)
+                    textMesh.text = "[Carry] (" + numResources + ") Traveling to " + curTaskAssigned.goTo;
+                else
+                    textMesh.text = "[Carry] (" + numResources + ") Working...";
                 break;
             default:
                 break;
         }
     }
 
-    void OnDestReached(ref Task _task)
+    void OnDestReached(ref BaseTask _task)
     {
-		if (_task.taskId == (int)tasks.COLLECT)
+		if (_task.taskTypeId == (int)BaseTask.tasks.COLLECT)
         {
             curState = (int)state.WORKING;
             UpdateStatusText();
@@ -193,22 +152,24 @@ public class WorkerScript : MonoBehaviour {
 
             StartCoroutine(CollectResource());
         }
-        else if (_task.taskId == (int)tasks.CARRY)
+        else if (_task.taskTypeId == (int)BaseTask.tasks.CARRY)
         {
             curState = (int)state.WORKING;
-
-            canvasTextScript.IncrementResource(numResources);
+            
+            // Send increment value event to the resource canvas element
+            ExecuteEvents.Execute<ICanvasMessageHandler>(resourceCanvasElement, null, (x, y) => x.IncrementComponentValue(numResources));
             numResources = 0;
 
             curState = (int)state.IDLE;
             isBusy = false;
         }
-        else if (_task.taskId == (int)tasks.IDLE)
+        else if (_task.taskTypeId == (int)BaseTask.tasks.IDLE)  
         {
             curState = (int)state.IDLE;
             isBusy = false;
         }
     }
+    */
 
     IEnumerator CollectResource()
     {
@@ -218,10 +179,10 @@ public class WorkerScript : MonoBehaviour {
         {
             yield return new WaitForSeconds(collectingTime);
             numResources++;
-            UpdateStatusText();
+            //UpdateStatusText();
         } while (numResources < maxResources);
 
-        curState = (int)state.IDLE;
+        //curState = (int)state.IDLE;
         isBusy = false;
     }
 
