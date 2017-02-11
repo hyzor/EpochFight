@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 
 public class Resource : MonoBehaviour, IClickable
 {
-    GameObject workerObj = null;
+    private MouseListener mouseListener;
 
     public void OnLeftClick()
     {
@@ -14,20 +14,30 @@ public class Resource : MonoBehaviour, IClickable
 
     public void OnRightClick()
     {
-        GetSelectedWorker();
-        ExecuteEvents.Execute<ITaskMessageHandler>(workerObj, null, (x, y) => x.RequestSetTask(BaseTask.TaskType.COLLECT));
-        Debug.Log("Resource right clicked!");
+        GameObject selectedWorker = GetSelectedWorker();
+
+        if (selectedWorker != null)
+        {
+            ExecuteEvents.Execute<ITaskManagerMessageHandler>(selectedWorker, null, (x, y) => x.RequestSetTask(BaseTask.TaskType.COLLECT));
+            ExecuteEvents.Execute<ITaskManagerMessageHandler>(selectedWorker, null, (x, y) => x.SetTaskDestinationCoords(this.gameObject.transform.position));
+            Debug.Log("Resource right clicked!");
+        }
     }
 
-    void GetSelectedWorker()
-    {
-        workerObj = GameObject.Find("Worker").transform.gameObject;
+    GameObject GetSelectedWorker()
+    {        
+        if (mouseListener.selectedObj != null && mouseListener.selectedObj.name == "Worker")
+        {
+            return mouseListener.selectedObj;
+        }
+
+        return null;
     }
 
 	// Use this for initialization
 	void Start () {
-		
-	}
+        mouseListener = GameObject.Find("MouseListener").GetComponent<MouseListener>();
+    }
 	
 	// Update is called once per frame
 	void Update () {

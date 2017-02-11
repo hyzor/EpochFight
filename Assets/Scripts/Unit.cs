@@ -1,15 +1,18 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.EventSystems;
 
-public class Unit : MonoBehaviour, IClickable {
+public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
+{
     public enum State
     {
         IDLE = 0,
-        WORKING = 1,
-        TRAVELING = 2,
-        FIGHTING = 3
+        TRAVELING = 1,
+        WORKING = 2,
+        COMBAT = 3
     }
 
     public int health = 1;
@@ -30,7 +33,15 @@ public class Unit : MonoBehaviour, IClickable {
 	
 	// Update is called once per frame
 	void Update () {
-	}
+        if (taskMgr.TaskIsActive())
+        {
+            if (HasReachedDestination())
+            {
+                taskMgr.OnDestReached();
+                Debug.Log(this.gameObject.name + " reached its destination!");
+            }
+        }
+    }
 
     public void OnLeftClick()
     {
@@ -40,5 +51,26 @@ public class Unit : MonoBehaviour, IClickable {
     public void OnRightClick()
     {
         Debug.Log("Unit right clicked!");
+    }
+
+    public void OrderUnitToCoords(Vector3 coords)
+    {
+        navMeshAgent.SetDestination(coords);
+    }
+
+    public bool HasReachedDestination()
+    {
+        if (!navMeshAgent.pathPending)
+        {
+            if (navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance)
+            {
+                if (!navMeshAgent.hasPath || navMeshAgent.velocity.sqrMagnitude == 0.0f)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

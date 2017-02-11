@@ -13,7 +13,7 @@ public class TaskTester : MonoBehaviour {
     {
 		if (Input.GetKeyDown(KeyCode.A))
         {
-			ExecuteEvents.Execute<ITaskMessageHandler>(obj, null, (x,y)=>x.RequestSetTask(0));
+			ExecuteEvents.Execute<ITaskManagerMessageHandler>(obj, null, (x,y)=>x.RequestSetTask(0));
 		}
 	}
 }

@@ -9,7 +9,7 @@ public class CanvasTextScript : MonoBehaviour, ICanvasMessageHandler {
     public Text uiText;
     public string text = "Placeholder";
     public int displayValue = 0;
-    bool hasValue = false;
+    public bool hasValue = false;
 
 	// Use this for initialization
 	void Start () {

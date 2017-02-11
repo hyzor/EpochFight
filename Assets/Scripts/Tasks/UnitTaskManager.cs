@@ -1,8 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class UnitTaskManager : MonoBehaviour, ITaskMessageHandler {
+public class UnitTaskManager : MonoBehaviour, ITaskManagerMessageHandler {
 
     public struct Task
     {
@@ -19,31 +21,39 @@ public class UnitTaskManager : MonoBehaviour, ITaskMessageHandler {
     public BaseTask[] tasksAvailable;
     private BaseTask curTask;
 
+    private TextMesh unitStatusText;
+
+    public Vector3 taskTargetCoordinates;
+    public GameObject taskTargetObject;
+
 	public void Start ()
     {
         curTask = null;
-	}
+        unitStatusText = gameObject.GetComponentInChildren<TextMesh>();
+    }
 
-	public void Update ()
+    public void Update ()
     {
-        // If mouse is clicked and this unit is selected
+        unitStatusText.transform.rotation = Camera.main.transform.rotation;
+
+        if (curTask != null)
+        {
+            if (curTask.completed)
+                PrepareForNextTask();
+        }
 
         // If enemy is close
         //OnEnemyClose();
+    }
 
-        // Execute task
-        //curTask.execute();
-	}
-
-	private void OnTaskFinished()
+    private void OnTaskFinished()
     {
-        
         Debug.Log("Task finished!");
 	}
 
     public void OnEnemyClose()
     {
-        int index = FindTask(BaseTask.TaskType.DEFEND);
+        int index = FindTask(BaseTask.TaskType.ATTACK);
 
         if (index != -1)
         {
@@ -64,12 +74,15 @@ public class UnitTaskManager : MonoBehaviour, ITaskMessageHandler {
             }
         }
 
+        Debug.LogWarning("Task " + taskType + " was not found for " + gameObject.name + "!");
         return -1;
     }
 
     public void RequestSetTask(BaseTask.TaskType taskType)
     {
-        ForceDestroyCurrentTask();
+        Debug.Log("Task of type " + taskType + " requested for unit " + gameObject.name);
+
+        PrepareForNextTask();
         int index = FindTask(taskType);
 
         if (index != -1)
@@ -78,16 +91,47 @@ public class UnitTaskManager : MonoBehaviour, ITaskMessageHandler {
         }
     }
 
+    public void SetTaskTargetCoordinates(Vector3 coords)
+    {
+        taskTargetCoordinates = coords;
+    }
+
+    public void SetTaskTargetObject(GameObject obj)
+    {
+        taskTargetObject = obj;
+    }
+
+    public void OnDestReached()
+    {
+        curTask.OnDestReached();
+    }
+
+    public bool TaskIsActive()
+    {
+        if (curTask != null)
+            return curTask.isBusy;
+
+        return false;
+    }
+
+    private void PrepareForNextTask()
+    {
+        taskTargetCoordinates = Vector3.zero;
+        taskTargetObject = null;
+
+        if (curTask)
+        {
+            Destroy(curTask.gameObject);
+            Destroy(curTask);
+            curTask = null;
+        }
+    }
+
     private void InstantiateCurTaskAndSetParent(int newTaskIdx)
     {
         curTask = Instantiate(tasksAvailable[newTaskIdx]);
         curTask.transform.parent = this.gameObject.transform;
-    }
-
-    private void ForceDestroyCurrentTask()
-    {
-        Destroy(curTask);
-        curTask = null;
+        unitStatusText.text = "Task: " + curTask.taskType.ToString();
     }
 
     public BaseTask GetCurrentTask()
@@ -101,8 +145,18 @@ public class UnitTaskManager : MonoBehaviour, ITaskMessageHandler {
 
         if (index != -1)
         {
-            ForceDestroyCurrentTask();
+            PrepareForNextTask();
             curTask = Instantiate(tasksAvailable[index]);
         }
+    }
+
+    public void SetTaskDestinationCoords(Vector3 coords)
+    {
+        ExecuteEvents.Execute<ITaskMessageHandler>(curTask.gameObject, null, (x, y) => x.SetTaskTargetCoordinates(coords));
+    }
+
+    public void SetTaskDestinationObj(GameObject obj)
+    {
+        ExecuteEvents.Execute<ITaskMessageHandler>(curTask.gameObject, null, (x, y) => x.SetTaskTargetObject(obj));
     }
 }

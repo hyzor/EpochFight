@@ -7,14 +7,17 @@ public class MouseListener : MonoBehaviour {
     public GameObject selectedObj;
     public GameObject actionObj;
     public Vector3 actionCoordinates;
+    private Color selectionColorCache;
+    private GameObject selectedCanvasElement;
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
+    // Use this for initialization
+    void Start () {
+        Transform canvasResourceTextTrans = GameObject.Find("Canvas").transform.GetChild(1);
+        selectedCanvasElement = canvasResourceTextTrans.gameObject;
+    }
+
+    // Update is called once per frame
+    void Update () {
 
         // Listen for select (left mouse button)
         if (Input.GetMouseButtonDown(0))
@@ -24,8 +27,18 @@ public class MouseListener : MonoBehaviour {
 
             if (Physics.Raycast (ray, out hit, 100.0f))
             {
-                Debug.Log("Selection ray hit " + hit.transform.name);
-                selectedObj = hit.transform.gameObject;
+                Debug.Log("Left click hit " + hit.transform.name);
+                GameObject selection = hit.transform.gameObject;
+
+                if (selectedObj != null && selectedObj != selection)
+                {
+                    Deselect(selectedObj);
+                }
+
+                if (hit.transform.name == "Ground")
+                    return;
+
+                Select(hit.transform.gameObject);
 
                 ExecuteEvents.Execute<IClickable>(selectedObj, null, (x, y) => x.OnLeftClick());
             }
@@ -36,34 +49,41 @@ public class MouseListener : MonoBehaviour {
         {
             RaycastHit hit;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            actionCoordinates = ray.GetPoint(100.0f);
-            Debug.Log(actionCoordinates);
+            Debug.Log("Right click on " + actionCoordinates);
 
             if (Physics.Raycast(ray, out hit, 100.0f))
             {
-                Debug.Log("Action ray hit " + hit.transform.name);
+                Debug.Log("Right click hit " + hit.transform.name);
                 actionObj = hit.transform.gameObject;
+                actionCoordinates = hit.point;
 
-                ExecuteEvents.Execute<IClickable>(selectedObj, null, (x, y) => x.OnRightClick());
+                ExecuteEvents.Execute<IClickable>(actionObj, null, (x, y) => x.OnRightClick());
             }
         }
 	}
 
-    private GameObject GetClickedObject()
+    private void Select(GameObject obj)
     {
-        PointerEventData pEv = new PointerEventData(EventSystem.current);
-        pEv.position = Input.mousePosition;
-        List<RaycastResult> hits = new List<RaycastResult>();
-        EventSystem.current.RaycastAll(pEv, hits);
-
-        foreach (RaycastResult result in hits)
+        if (selectedObj == obj)
         {
-            GameObject obj = result.gameObject;
-
-            if (obj)
-                return obj;
+            Deselect(selectedObj);
+            return;
         }
 
-        return null;
+        selectedObj = obj;
+        Renderer renderer = selectedObj.GetComponent<Renderer>();
+        selectionColorCache = renderer.material.color;
+        renderer.material.color = Color.red;
+
+        ExecuteEvents.Execute<ICanvasMessageHandler>(selectedCanvasElement, null, (x, y) => x.SetComponentText("Selected: " + selectedObj.name));
+    }
+
+    private void Deselect(GameObject obj)
+    {
+        Renderer renderer = selectedObj.GetComponent<Renderer>();
+        renderer.material.color = selectionColorCache;
+        selectedObj = null;
+
+        ExecuteEvents.Execute<ICanvasMessageHandler>(selectedCanvasElement, null, (x, y) => x.SetComponentText("Selected: "));
     }
 }
