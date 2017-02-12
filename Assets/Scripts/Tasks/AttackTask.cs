@@ -53,7 +53,7 @@ public class AttackTask : BaseTask {
         do
         {
             yield return new WaitForSeconds(1); // Attack speed
-            ExecuteEvents.Execute<IEntityMessageHandler>(taskTargetObj, null, (x, y) => x.ReceiveDamage(1));
+            ExecuteEvents.Execute<IEntityMessageHandler>(taskTargetObj, null, (x, y) => x.ReceiveDamage(1, this.transform.parent.gameObject));
         } while (taskTargetObj != null);
 
         isBusy = false;

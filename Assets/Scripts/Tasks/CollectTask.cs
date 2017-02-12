@@ -105,7 +105,7 @@ public class CollectTask : BaseTask
         do
         {
             yield return new WaitForSeconds(collectingTime);
-            ExecuteEvents.Execute<IEntityMessageHandler>(taskTargetObj, null, (x, y) => x.ReceiveDamage(1));
+            ExecuteEvents.Execute<IEntityMessageHandler>(taskTargetObj, null, (x, y) => x.ReceiveDamage(1, this.transform.parent.gameObject));
             numResources++;
         } while (taskTargetObj != null && numResources < maxResources);
 

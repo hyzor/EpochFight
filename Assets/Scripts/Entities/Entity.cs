@@ -10,19 +10,24 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
     public bool isAlive = true;
     public bool deathTrigger = false;
     private Renderer entityRenderer;
+    private Unit unitComponent;
 
     private Color dmgColorStart = Color.white;
     private Color dmgColorEnd = Color.red;
     private float dmgDuration = 0.4f;
     private Color matColorCache;
 
-    public void ReceiveDamage(int dmg)
+    public void ReceiveDamage(int dmg, GameObject src)
     {
         curHealth -= dmg;
 
         //float lerp = Mathf.PingPong(Time.time, dmgDuration) / dmgDuration;
         //entityRenderer.material.color = Color.Lerp(dmgColorStart, dmgColorEnd, lerp);
         StartCoroutine(OnDamageReceived(dmgDuration));
+
+        // Is this entity a unit?
+        if (unitComponent != null)
+            unitComponent.OnReceiveDamage(src);
     }
 
     private IEnumerator OnDamageReceived(float duration)
@@ -52,6 +57,8 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
         }
 
         matColorCache = entityRenderer.material.color;
+
+        unitComponent = this.gameObject.GetComponent<Unit>();
     }
 	
 	// Update is called once per frame

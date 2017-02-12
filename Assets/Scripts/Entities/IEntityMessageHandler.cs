@@ -5,5 +5,5 @@ using UnityEngine.EventSystems;
 
 public interface IEntityMessageHandler : IEventSystemHandler
 {
-    void ReceiveDamage(int dmg);
+    void ReceiveDamage(int dmg, GameObject src);
 }

@@ -22,7 +22,7 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
     private TextMesh textMesh;
     private Animator anim;
     private Entity entity;
-    private State curState;
+    public State curState;
 
 	// Use this for initialization
 	void Start () {
@@ -119,6 +119,17 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
             anim.SetFloat("Speed_f", 0.0f);
             anim.SetInteger("MeleeType_int", 1);
             anim.SetInteger("WeaponType_int", 1);
+        }
+    }
+
+    public void OnReceiveDamage(GameObject src)
+    {
+        // Is the unit already attacking something?
+        if (curState != State.ATTACKING)
+        {
+            ExecuteEvents.Execute<ITaskManagerMessageHandler>(this.gameObject, null, (x, y) => x.RequestSetTask(BaseTask.TaskType.ATTACK));
+            ExecuteEvents.Execute<ITaskManagerMessageHandler>(this.gameObject, null, (x, y) => x.SetTaskDestinationCoords(src.transform.position));
+            ExecuteEvents.Execute<ITaskManagerMessageHandler>(this.gameObject, null, (x, y) => x.SetTaskDestinationObj(src));
         }
     }
 
