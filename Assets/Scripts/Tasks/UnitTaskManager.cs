@@ -131,7 +131,6 @@ public class UnitTaskManager : MonoBehaviour, ITaskManagerMessageHandler {
     {
         curTask = Instantiate(tasksAvailable[newTaskIdx]);
         curTask.transform.parent = this.gameObject.transform;
-        unitStatusText.text = "Task: " + curTask.taskType.ToString();
     }
 
     public BaseTask GetCurrentTask()
