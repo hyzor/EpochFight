@@ -10,6 +10,12 @@ public class MouseListener : MonoBehaviour {
     private Color selectionColorCache;
     private GameObject selectedCanvasElement;
 
+    private Renderer selectedObjRenderer;
+
+    private Color selectedColorStart = Color.white;
+    private Color selectedColorEnd = Color.black;
+    private float duration = 1.0f;
+
     // Use this for initialization
     void Start () {
         Transform canvasResourceTextTrans = GameObject.Find("Canvas").transform.GetChild(1);
@@ -18,6 +24,12 @@ public class MouseListener : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
+
+        if (selectedObj != null)
+        {
+            float lerp = Mathf.PingPong(Time.time, duration) / duration;
+            selectedObjRenderer.material.color = Color.Lerp(selectedColorStart, selectedColorEnd, lerp);
+        }
 
         // Listen for select (left mouse button)
         if (Input.GetMouseButtonDown(0))
@@ -71,18 +83,18 @@ public class MouseListener : MonoBehaviour {
         }
 
         selectedObj = obj;
-        Renderer renderer = selectedObj.GetComponent<Renderer>();
-        selectionColorCache = renderer.material.color;
-        renderer.material.color = Color.red;
+        selectedObjRenderer = selectedObj.GetComponent<Renderer>();
+        selectionColorCache = selectedObjRenderer.material.color;
+        //renderer.material.color = Color.red;
 
         ExecuteEvents.Execute<ICanvasMessageHandler>(selectedCanvasElement, null, (x, y) => x.SetComponentText("Selected: " + selectedObj.name));
     }
 
     private void Deselect(GameObject obj)
     {
-        Renderer renderer = selectedObj.GetComponent<Renderer>();
-        renderer.material.color = selectionColorCache;
+        selectedObjRenderer.material.color = selectionColorCache;
         selectedObj = null;
+        selectedObjRenderer = null;
 
         ExecuteEvents.Execute<ICanvasMessageHandler>(selectedCanvasElement, null, (x, y) => x.SetComponentText("Selected: "));
     }
