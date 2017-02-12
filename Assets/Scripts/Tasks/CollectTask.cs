@@ -40,9 +40,13 @@ public class CollectTask : BaseTask
         else if (curSubroutine == SubRoutine.TRAVEL_TO_DEPOSIT)
         {
             ExecuteEvents.Execute<ICanvasMessageHandler>(resourceCanvasElement, null, (x, y) => x.IncrementComponentValue(numResources));
-            curSubroutine = SubRoutine.TRAVEL_TO_COLLECT;
             numResources = 0;
             isBusy = false;
+
+            if (taskTargetObj != null)
+                curSubroutine = SubRoutine.TRAVEL_TO_COLLECT;
+            else
+                Destroy(this.gameObject);
         }
     }
 
@@ -101,8 +105,9 @@ public class CollectTask : BaseTask
         do
         {
             yield return new WaitForSeconds(collectingTime);
+            ExecuteEvents.Execute<IEntityMessageHandler>(taskTargetObj, null, (x, y) => x.ReceiveDamage(1));
             numResources++;
-        } while (numResources < maxResources);
+        } while (taskTargetObj != null && numResources < maxResources);
 
         isBusy = false;
         curSubroutine = SubRoutine.TRAVEL_TO_DEPOSIT;

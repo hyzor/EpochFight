@@ -74,6 +74,32 @@ public class MouseListener : MonoBehaviour {
         }
 	}
 
+    public GameObject GetSelectedAlliedWorker()
+    {
+        if (selectedObj != null && selectedObj.name == "Worker")
+        {
+            if (selectedObj.GetComponent<Enemy>() == null)
+            {
+                return selectedObj;
+            }
+        }
+
+        return null;
+    }
+
+    public GameObject GetSelectedAlliedUnit()
+    {
+        if (selectedObj != null)
+        {
+            if (selectedObj.GetComponent<Unit>() != null && selectedObj.GetComponent<Enemy>() == null)
+            {
+                return selectedObj;
+            }
+        }
+
+        return null;
+    }
+
     private void Select(GameObject obj)
     {
         if (selectedObj == obj)
