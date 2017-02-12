@@ -9,6 +9,7 @@ public class CollectTask : BaseTask
     public int numResources;
     public int maxResources;
     public int collectingTime;
+    private GameObject resourceCanvasElement;
 
     public enum SubRoutine
     {
@@ -25,6 +26,8 @@ public class CollectTask : BaseTask
         collectingTime = 1;
         numResources = 0;
         curSubroutine = SubRoutine.TRAVEL_TO_COLLECT;
+        Transform canvasResourceTextTrans = GameObject.Find("Canvas").transform.FindChild("ResourceText");
+        resourceCanvasElement = canvasResourceTextTrans.gameObject;
     }
 
     public override void OnDestReached()
@@ -36,10 +39,11 @@ public class CollectTask : BaseTask
         }
         else if (curSubroutine == SubRoutine.TRAVEL_TO_DEPOSIT)
         {
+            ExecuteEvents.Execute<ICanvasMessageHandler>(resourceCanvasElement, null, (x, y) => x.IncrementComponentValue(numResources));
             curSubroutine = SubRoutine.TRAVEL_TO_COLLECT;
+            numResources = 0;
             isBusy = false;
         }
-
     }
 
     public void Update()
