@@ -84,6 +84,12 @@ public class MouseListener : MonoBehaviour {
 
         selectedObj = obj;
         selectedObjRenderer = selectedObj.GetComponent<Renderer>();
+
+        if (selectedObjRenderer == null)
+        {
+            selectedObjRenderer = selectedObj.GetComponentInChildren<Renderer>();
+        }
+
         selectionColorCache = selectedObjRenderer.material.color;
         //renderer.material.color = Color.red;
 
