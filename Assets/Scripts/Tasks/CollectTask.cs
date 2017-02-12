@@ -55,6 +55,7 @@ public class CollectTask : BaseTask
 
             else if (curSubroutine == SubRoutine.COLLECT)
             {
+                ExecuteEvents.Execute<IUnitMessageHandler>(this.transform.parent.gameObject, null, (x, y) => x.SetUnitState(Unit.State.WORKING));
                 StartCoroutine(CollectResource());
             }
 
