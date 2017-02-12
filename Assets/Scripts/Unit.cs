@@ -33,11 +33,13 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
         curState = State.IDLE;
         anim.SetFloat("Speed_f", 0.0f);
         anim.SetInteger("MeleeType_int", 1);
-        anim.SetInteger("WeaponType_int", 1);
+        anim.SetInteger("WeaponType_int", 0);
+        anim.SetInteger("Animation_int", 2);
+        anim.SetBool("Static_b", true);
     }
-	
-	// Update is called once per frame
-	void Update () {
+
+    // Update is called once per frame
+    void Update () {
         if (taskMgr.TaskIsActive())
         {
             if (curState == State.TRAVELING)
@@ -60,7 +62,8 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
             textMesh.text = "Idle";
             anim.SetFloat("Speed_f", 0.0f);
             anim.SetInteger("MeleeType_int", 1);
-            anim.SetInteger("WeaponType_int", 1);
+            anim.SetInteger("WeaponType_int", 0);
+            anim.SetInteger("Animation_int", 2);
         }
         else if (curState == State.TRAVELING)
         {
@@ -68,6 +71,7 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
             anim.SetFloat("Speed_f", 1.0f);
             anim.SetInteger("MeleeType_int", 12);
             anim.SetInteger("WeaponType_int", 12);
+            anim.SetInteger("Animation_int", 0);
         }
         else if (curState == State.WORKING)
         {
@@ -75,6 +79,7 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
             anim.SetFloat("Speed_f", 0.0f);
             anim.SetInteger("MeleeType_int", 1);
             anim.SetInteger("WeaponType_int", 12);
+            anim.SetInteger("Animation_int", 0);
         }
         else if (curState == State.FIGHTING)
         {
