@@ -5,6 +5,8 @@ using UnityEngine.EventSystems;
 
 public class AttackTask : BaseTask {
 
+    private Entity entityTarget;
+
     public enum SubRoutine
     {
         TRAVEL_TO_ATTACK = 0,
@@ -26,11 +28,16 @@ public class AttackTask : BaseTask {
     void Start ()
     {
         curSubroutine = SubRoutine.TRAVEL_TO_ATTACK;
-	}
+        entityTarget = taskTargetObj.GetComponent<Entity>();
+
+    }
 	
 	// Update is called once per frame
 	void Update ()
     {
+        if (!entityTarget.isAlive)
+            Destroy(this.gameObject);
+
 		if (!isBusy)
         {
             if (curSubroutine == SubRoutine.TRAVEL_TO_ATTACK)
@@ -54,7 +61,7 @@ public class AttackTask : BaseTask {
         {
             yield return new WaitForSeconds(1); // Attack speed
             ExecuteEvents.Execute<IEntityMessageHandler>(taskTargetObj, null, (x, y) => x.ReceiveDamage(1, this.transform.parent.gameObject));
-        } while (taskTargetObj != null);
+        } while (taskTargetObj != null && entityTarget.isAlive);
 
         isBusy = false;
         Destroy(this.gameObject);

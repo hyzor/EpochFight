@@ -133,6 +133,11 @@ public class UnitTaskManager : MonoBehaviour, ITaskManagerMessageHandler {
         curTask.transform.parent = this.gameObject.transform;
     }
 
+    public void AbortCurrentTask()
+    {
+        PrepareForNextTask();
+    }
+
     public BaseTask GetCurrentTask()
     {
         return curTask;

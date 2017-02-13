@@ -9,13 +9,16 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
     public int curHealth = 1;
     public bool isAlive = true;
     public bool deathTrigger = false;
+    public bool flaggedForRemoval = false;
     private Renderer entityRenderer;
     private Unit unitComponent;
 
     private Color dmgColorStart = Color.white;
     private Color dmgColorEnd = Color.red;
-    private float dmgDuration = 0.4f;
+    private float dmgDuration = 0.5f;
     private Color matColorCache;
+
+    private bool removalStarted = false;
 
     public void ReceiveDamage(int dmg, GameObject src)
     {
@@ -36,7 +39,7 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
 
         while (startTime + duration > Time.time)
         {
-            float lerp = Mathf.PingPong(Time.time, dmgDuration) / dmgDuration;
+            float lerp = Mathf.PingPong(Time.time, duration) / duration;
             entityRenderer.material.color = Color.Lerp(dmgColorStart, dmgColorEnd, lerp);
             yield return null;
         }
@@ -60,14 +63,33 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
 
         unitComponent = this.gameObject.GetComponent<Unit>();
     }
-	
-	// Update is called once per frame
-	void Update ()
+
+    private IEnumerator DestroyAfter(float duration)
     {
+        removalStarted = true;
+        float startTime = Time.time;
+
+        while (startTime + duration > Time.time)
+        {
+            float lerp = Mathf.PingPong(Time.time, duration) / duration;
+            entityRenderer.material.color = Color.Lerp(dmgColorStart, dmgColorEnd, lerp);
+            yield return null;
+        }
+
+        Destroy(this.gameObject);
+    }
+
+    // Update is called once per frame
+    void Update ()
+    {
+        if (flaggedForRemoval && !removalStarted)
+        {
+            StartCoroutine(DestroyAfter(5.0f));
+        }
+
         if (curHealth <= 0)
         {
             deathTrigger = true;
-            return;
         }
 	}
 }

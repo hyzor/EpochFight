@@ -12,7 +12,8 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
         IDLE = 0,
         TRAVELING = 1,
         WORKING = 2,
-        ATTACKING = 3
+        ATTACKING = 3,
+        DEAD = 4
     }
 
     public float speed = 1.0f;
@@ -42,26 +43,36 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
 
     public void OnDie()
     {
-        // Play death animation
-        anim.SetBool("Death_b", true);
-        anim.SetInteger("DeathType_int", 1);
-
-        // Wait for death animation to finish
-        if (anim.GetCurrentAnimatorStateInfo(0).IsName("Death_01"))
-            return;
-
-        // Set death flag to true for removal
         entity.isAlive = false;
-        Destroy(this.gameObject);
+
+        // Begin death animation
+        anim.SetBool("Death_b", true);
+        anim.SetInteger("DeathType_int", 1); // Play "Death_01" animation
+        anim.SetFloat("Speed_f", 0.0f);
+        anim.SetInteger("MeleeType_int", 1);
+        anim.SetInteger("WeaponType_int", 0);
+        anim.SetInteger("Animation_int", 2);
+
+        // Get "Death" layer state info
+        AnimatorStateInfo animState = anim.GetCurrentAnimatorStateInfo(4);
+
+        // If the death animation has finished playing...
+        if (animState.IsName("Dead_01"))
+        {
+            // ...we flag this entity for removal
+            entity.flaggedForRemoval = true;
+        }
     }
 
     // Update is called once per frame
     void Update () {
-        if (entity.deathTrigger)
+        if (entity.deathTrigger && !entity.flaggedForRemoval)
         {
+            taskMgr.AbortCurrentTask();
+            navMeshAgent.Stop();
             OnDie();
-            return;
         }
+            
 
         if (taskMgr.TaskIsActive())
         {
@@ -74,6 +85,10 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
                     Debug.Log(this.gameObject.name + " reached its destination!");
                 }
             }
+        }
+        else if (entity.deathTrigger)
+        {
+            curState = State.DEAD;
         }
         else
         {
@@ -114,11 +129,20 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
             anim.SetInteger("WeaponType_int", 12);
             anim.SetInteger("Animation_int", 0);
         }
+        else if (curState == State.DEAD)
+        {
+            textMesh.text += " (Dead)";
+            anim.SetFloat("Speed_f", 0.0f);
+            anim.SetInteger("MeleeType_int", 1);
+            anim.SetInteger("WeaponType_int", 0);
+            anim.SetInteger("Animation_int", 0);
+        }
         else
         {
             anim.SetFloat("Speed_f", 0.0f);
             anim.SetInteger("MeleeType_int", 1);
-            anim.SetInteger("WeaponType_int", 1);
+            anim.SetInteger("WeaponType_int", 0);
+            anim.SetInteger("Animation_int", 0);
         }
     }
 
@@ -145,8 +169,11 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
 
     public void OrderUnitToCoords(Vector3 coords)
     {
-        navMeshAgent.SetDestination(coords);
-        curState = State.TRAVELING;
+        if (entity.isAlive)
+        {
+            navMeshAgent.SetDestination(coords);
+            curState = State.TRAVELING;
+        }
     }
 
     public bool HasReachedDestination()
