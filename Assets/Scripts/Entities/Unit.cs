@@ -36,7 +36,6 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
         anim.SetInteger("WeaponType_int", 0);
         anim.SetInteger("Animation_int", 2);
         anim.SetBool("Static_b", true);
-        navMeshAgent.stoppingDistance = 1.0f; // TODO: Adjust this value w.r.t. the units' dimensions
     }
 
     public void OnDie()
