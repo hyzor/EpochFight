@@ -27,12 +27,13 @@ public class Enemy : MonoBehaviour, IClickable {
     }
 
     // Use this for initialization
-    void Start () {
+    void Start ()
+    {
         mouseListener = GameObject.Find("MouseListener").GetComponent<MouseListener>();
     }
 
     // Update is called once per frame
-    void Update () {
-		
-	}
+    void Update ()
+    {
+    }
 }

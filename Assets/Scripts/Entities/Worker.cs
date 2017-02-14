@@ -8,6 +8,7 @@ public class Worker : MonoBehaviour {
     public int resourceCapacity = 5;
     public int resPerCollect = 1;
     public int numResources = 0;
+    public int statusTextIndex = 2;
     private Entity entity;
 
     // Use this for initialization
@@ -19,9 +20,6 @@ public class Worker : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
-        if (numResources > 0)
-        {
-            entity.AppendStatusText(" [" + numResources + "/" + resourceCapacity + "]");
-        }
+        entity.InsertStatusTextElement(statusTextIndex, " [" + numResources + "/" + resourceCapacity + "]");
     }
 }

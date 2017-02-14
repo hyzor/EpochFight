@@ -20,7 +20,8 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
     private Renderer entityRenderer;
     private Unit unitComponent;
 
-    public TextMesh statusText;
+    private TextMesh statusText;
+    public List<string> statusTextElements = new List<string>();
 
     private Color dmgColorStart = Color.white;
     private Color dmgColorEnd = Color.red;
@@ -28,6 +29,7 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
     private Color matColorCache;
 
     private bool removalStarted = false;
+    public int statusTextIndex = 0;
 
     public void ReceiveDamage(int dmg, GameObject src)
     {
@@ -92,18 +94,28 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
         Destroy(this.gameObject);
     }
 
-    public void AppendStatusText(string text)
+    public void InsertStatusTextElement(int index, string text)
     {
-        statusText.text += text;
+        if (statusTextElements.Count < index + 1)
+            statusTextElements.Insert(index, text);
+        else
+            statusTextElements[index] = text;
     }
 
     // Update is called once per frame
     void Update ()
     {
+        InsertStatusTextElement(statusTextIndex, curHealth + "/" + maxHealth);
+
         if (statusText != null)
         {
             statusText.transform.rotation = Camera.main.transform.rotation;
-            statusText.text = curHealth + "/" + maxHealth;
+            statusText.text = "";
+
+            foreach (string element in statusTextElements)
+            {
+                statusText.text += element;
+            }
         }
 
         if (flaggedForRemoval && !removalStarted)

@@ -23,6 +23,7 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
     private Animator anim;
     private Entity entity;
     public State curState;
+    public int statusTextIndex = 1;
 
 	// Use this for initialization
 	void Start () {
@@ -94,7 +95,7 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
 
         if (curState == State.IDLE)
         {
-            entity.AppendStatusText(" (Idle)");
+            entity.InsertStatusTextElement(statusTextIndex, " (Idle)");
             anim.SetFloat("Speed_f", 0.0f);
             anim.SetInteger("MeleeType_int", 1);
             anim.SetInteger("WeaponType_int", 0);
@@ -102,7 +103,7 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
         }
         else if (curState == State.TRAVELING)
         {
-            entity.AppendStatusText(" (Traveling)");
+            entity.InsertStatusTextElement(statusTextIndex, " (Traveling)");
             anim.SetFloat("Speed_f", 1.0f);
             anim.SetInteger("MeleeType_int", 12);
             anim.SetInteger("WeaponType_int", 12);
@@ -110,7 +111,7 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
         }
         else if (curState == State.WORKING)
         {
-            entity.AppendStatusText(" (Working)");
+            entity.InsertStatusTextElement(statusTextIndex, " (Working)");
             anim.SetFloat("Speed_f", 0.0f);
             anim.SetInteger("MeleeType_int", 1);
             anim.SetInteger("WeaponType_int", 12);
@@ -118,7 +119,7 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
         }
         else if (curState == State.ATTACKING)
         {
-            entity.AppendStatusText(" (Attacking)");
+            entity.InsertStatusTextElement(statusTextIndex, " (Attacking)");
             anim.SetFloat("Speed_f", 0.0f);
             anim.SetInteger("MeleeType_int", 1);
             anim.SetInteger("WeaponType_int", 12);
@@ -126,7 +127,7 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
         }
         else if (curState == State.DEAD)
         {
-            entity.AppendStatusText(" (Dead)");
+            entity.InsertStatusTextElement(statusTextIndex, " (Dead)");
             anim.SetFloat("Speed_f", 0.0f);
             anim.SetInteger("MeleeType_int", 1);
             anim.SetInteger("WeaponType_int", 0);
