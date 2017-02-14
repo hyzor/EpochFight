@@ -2,11 +2,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class Entity : MonoBehaviour, IEntityMessageHandler
 {
     public int maxHealth = 1;
     public int curHealth = 1;
+
+    // For entities with the ability to attack
+    public int attackSpeed = 1;
+    public int attackDamage = 1;
+    public float attackRange = 1;
+
     public bool isAlive = true;
     public bool deathTrigger = false;
     public bool flaggedForRemoval = false;
@@ -62,6 +69,12 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
         matColorCache = entityRenderer.material.color;
 
         unitComponent = this.gameObject.GetComponent<Unit>();
+   
+        // If the entity contains a NavMeshAgent, make sure that the attack range is
+        // at least as big as the NavMesh's stopping distance
+        NavMeshAgent navMesh = this.gameObject.GetComponent<NavMeshAgent>();
+        if (navMesh != null && navMesh.stoppingDistance < attackRange)
+            attackRange = navMesh.stoppingDistance;
     }
 
     private IEnumerator DestroyAfter(float duration)

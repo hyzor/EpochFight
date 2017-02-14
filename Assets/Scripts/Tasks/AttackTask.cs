@@ -6,6 +6,7 @@ using UnityEngine.EventSystems;
 public class AttackTask : BaseTask {
 
     private Entity entityTarget;
+    private Entity entitySrc;
 
     public enum SubRoutine
     {
@@ -19,8 +20,11 @@ public class AttackTask : BaseTask {
     {
         if (curSubroutine == SubRoutine.TRAVEL_TO_ATTACK)
         {
-            curSubroutine = SubRoutine.ATTACK;
-            isBusy = false;
+            if (TargetIsWithinRange())
+            {
+                curSubroutine = SubRoutine.ATTACK;
+                isBusy = false;
+            }
         }
     }
 
@@ -29,20 +33,25 @@ public class AttackTask : BaseTask {
     {
         curSubroutine = SubRoutine.TRAVEL_TO_ATTACK;
         entityTarget = taskTargetObj.GetComponent<Entity>();
-
+        entitySrc = this.transform.parent.gameObject.GetComponent<Entity>();
     }
 	
 	// Update is called once per frame
 	void Update ()
     {
-        if (!entityTarget.isAlive)
+        if (taskTargetObj == null || !entityTarget.isAlive)
             Destroy(this.gameObject);
 
-		if (!isBusy)
+        if (curSubroutine == SubRoutine.TRAVEL_TO_ATTACK && !TargetIsWithinRange())
+        {
+            ExecuteEvents.Execute<IUnitMessageHandler>(this.transform.parent.gameObject, null, (x, y) => x.OrderUnitToCoords(entityTarget.gameObject.transform.position));
+        }
+
+        if (!isBusy)
         {
             if (curSubroutine == SubRoutine.TRAVEL_TO_ATTACK)
             {
-                ExecuteEvents.Execute<IUnitMessageHandler>(this.transform.parent.gameObject, null, (x, y) => x.OrderUnitToCoords(taskCoords));
+                ExecuteEvents.Execute<IUnitMessageHandler>(this.transform.parent.gameObject, null, (x, y) => x.OrderUnitToCoords(entityTarget.gameObject.transform.position));
                 isBusy = true;
             }
             else if (curSubroutine == SubRoutine.ATTACK)
@@ -53,17 +62,43 @@ public class AttackTask : BaseTask {
         }
 	}
 
+    public bool TargetIsWithinRange()
+    {
+        float dist = Vector3.Distance(entitySrc.gameObject.transform.position, taskTargetObj.transform.position);
+
+        if (dist <= entitySrc.attackRange)
+            return true;
+        else
+            return false;
+    }
+
     private IEnumerator Attack()
     {
         isBusy = true;
 
         do
         {
-            yield return new WaitForSeconds(1); // Attack speed
-            ExecuteEvents.Execute<IEntityMessageHandler>(taskTargetObj, null, (x, y) => x.ReceiveDamage(1, this.transform.parent.gameObject));
-        } while (taskTargetObj != null && entityTarget.isAlive);
+            yield return new WaitForSeconds(entitySrc.attackSpeed); // Attack speed
+            ExecuteEvents.Execute<IEntityMessageHandler>(taskTargetObj, null, (x, y) => x.ReceiveDamage(entitySrc.attackDamage, entitySrc.gameObject));
+        } while (taskTargetObj != null && entityTarget.isAlive && TargetIsWithinRange());
 
-        isBusy = false;
-        Destroy(this.gameObject);
+        if (taskTargetObj != null)
+        {
+            if (!entityTarget.isAlive)
+                Destroy(this.gameObject);
+            else
+            {
+                if (!TargetIsWithinRange())
+                {
+                    curSubroutine = SubRoutine.TRAVEL_TO_ATTACK;
+                    isBusy = false;
+                }
+            }
+        }
+        else
+        {
+            isBusy = false;
+            Destroy(this.gameObject);
+        }
     }
 }

@@ -143,8 +143,8 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
 
     public void OnReceiveDamage(GameObject src)
     {
-        // Is the unit already attacking something?
-        if (curState != State.ATTACKING)
+        // Do not attack back if we are already attacking something or traveling somewhere
+        if (curState != State.ATTACKING && curState != State.TRAVELING)
         {
             ExecuteEvents.Execute<ITaskManagerMessageHandler>(this.gameObject, null, (x, y) => x.RequestSetTask(BaseTask.TaskType.ATTACK));
             ExecuteEvents.Execute<ITaskManagerMessageHandler>(this.gameObject, null, (x, y) => x.SetTaskDestinationCoords(src.transform.position));
