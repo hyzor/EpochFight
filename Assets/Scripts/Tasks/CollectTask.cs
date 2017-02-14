@@ -115,7 +115,10 @@ public class CollectTask : BaseTask
             }
         }
 
-        return closestRes.gameObject;
+        if (closestRes != null)
+            return closestRes.gameObject;
+
+        return null;
     }
 
     GameObject FindClosestBase(GameObject src)
@@ -135,26 +138,48 @@ public class CollectTask : BaseTask
             }
         }
 
-        return closestBase.gameObject;
+        if (closestBase != null)
+            return closestBase.gameObject;
+
+        return null;
     }
 
     private IEnumerator CollectResource()
     {
         isBusy = true;
+        Entity curResEntity = taskTargetObj.GetComponent<Entity>();
 
         while (taskTargetObj != null && worker.numResources < worker.resourceCapacity)
         {
-            ExecuteEvents.Execute<IEntityMessageHandler>(taskTargetObj, null, (x, y) => x.ReceiveDamage(1, this.transform.parent.gameObject));
-            worker.numResources += worker.resPerCollect;
-            yield return new WaitForSeconds(collectingTime);
+            // Collect as normal
+            if (worker.resPerCollect <= curResEntity.curHealth && worker.numResources + worker.resPerCollect <= worker.resourceCapacity)
+            {
+                yield return new WaitForSeconds(collectingTime);
+                ExecuteEvents.Execute<IEntityMessageHandler>(taskTargetObj, null, (x, y) => x.ReceiveDamage(worker.resPerCollect, this.transform.parent.gameObject));
+                worker.numResources += worker.resPerCollect;
+            }
+
+            // We are about to reach our capacity, so fill the worker with the remaining number of resources
+            else if (worker.resPerCollect <= curResEntity.curHealth && worker.numResources + worker.resPerCollect > worker.resourceCapacity)
+            {
+                yield return new WaitForSeconds(collectingTime);
+                int resToFill = worker.resourceCapacity - worker.numResources;
+                ExecuteEvents.Execute<IEntityMessageHandler>(taskTargetObj, null, (x, y) => x.ReceiveDamage(resToFill, this.transform.parent.gameObject));
+                worker.numResources += resToFill;
+            }
+
+            // The resource contains less resources than what we can collect, so collect the remaining amount
+            else
+            {
+                yield return new WaitForSeconds(collectingTime);
+                int resToFill = curResEntity.curHealth;
+                ExecuteEvents.Execute<IEntityMessageHandler>(taskTargetObj, null, (x, y) => x.ReceiveDamage(resToFill, this.transform.parent.gameObject));
+                worker.numResources += resToFill;
+            }
         }
 
-        if (worker.numResources > worker.resourceCapacity)
-        {
-            worker.numResources = worker.resourceCapacity;
-        }
         // We still have the capacity to collect more, find closest resource
-        else if (worker.numResources < worker.resourceCapacity)
+        if (worker.numResources < worker.resourceCapacity)
         {
             GameObject closestRes = FindClosestResource(taskCoords);
 
@@ -166,11 +191,18 @@ public class CollectTask : BaseTask
                 isBusy = false;
                 yield return null;
             }
+            else
+            {
+                isBusy = false;
+                curSubroutine = SubRoutine.TRAVEL_TO_DEPOSIT;
+                yield return null;
+            }
         }
         else
         {
             isBusy = false;
             curSubroutine = SubRoutine.TRAVEL_TO_DEPOSIT;
+            yield return null;
         }
     }
 }
