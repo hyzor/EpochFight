@@ -10,6 +10,7 @@ public class CollectTask : BaseTask
     public int maxResources;
     public int collectingTime;
     private GameObject resourceCanvasElement;
+    private Worker worker;
 
     public enum SubRoutine
     {
@@ -27,6 +28,7 @@ public class CollectTask : BaseTask
         numResources = 0;
         curSubroutine = SubRoutine.TRAVEL_TO_COLLECT;
         Transform canvasResourceTextTrans = GameObject.Find("Canvas").transform.FindChild("ResourceText");
+        worker = this.gameObject.transform.parent.GetComponent<Worker>();
         resourceCanvasElement = canvasResourceTextTrans.gameObject;
     }
 
@@ -39,14 +41,33 @@ public class CollectTask : BaseTask
         }
         else if (curSubroutine == SubRoutine.TRAVEL_TO_DEPOSIT)
         {
-            ExecuteEvents.Execute<ICanvasMessageHandler>(resourceCanvasElement, null, (x, y) => x.IncrementComponentValue(numResources));
-            numResources = 0;
+            ExecuteEvents.Execute<ICanvasMessageHandler>(resourceCanvasElement, null, (x, y) => x.IncrementComponentValue(worker.numResources));
+            worker.numResources = 0;
             isBusy = false;
 
             if (taskTargetObj != null)
+            {
                 curSubroutine = SubRoutine.TRAVEL_TO_COLLECT;
+            }
             else
-                Destroy(this.gameObject);
+            {
+                // Find another resource that is close
+                GameObject closestRes = FindClosestResource(taskCoords);
+
+                // If we have found a resource close to the depleted one, continue collecting on this
+                if (closestRes != null)
+                {
+                    taskCoords = closestRes.transform.position;
+                    taskTargetObj = closestRes;
+                    curSubroutine = SubRoutine.TRAVEL_TO_COLLECT;
+                }
+
+                // We haven't found any resource in the vicinity, destroy the task
+                else
+                {
+                    Destroy(this.gameObject);
+                }
+            }
         }
     }
 
@@ -77,6 +98,26 @@ public class CollectTask : BaseTask
         }
     }
 
+    GameObject FindClosestResource(Vector3 coords)
+    {
+        Resource[] resources = GameObject.FindObjectsOfType<Resource>();
+        Resource closestRes = null;
+        float closesResDist = -1;
+
+        foreach(Resource resObj in resources)
+        {
+            float dist = Vector3.Distance(coords, resObj.transform.position);
+
+            if (closesResDist == -1 || dist < closesResDist)
+            {
+                closesResDist = dist;
+                closestRes = resObj;
+            }
+        }
+
+        return closestRes.gameObject;
+    }
+
     GameObject FindClosestBase(GameObject src)
     {
         Base[] bases = GameObject.FindObjectsOfType<Base>();
@@ -100,16 +141,36 @@ public class CollectTask : BaseTask
     private IEnumerator CollectResource()
     {
         isBusy = true;
-        numResources = 0;
 
-        do
+        while (taskTargetObj != null && worker.numResources < worker.resourceCapacity)
         {
-            yield return new WaitForSeconds(collectingTime);
             ExecuteEvents.Execute<IEntityMessageHandler>(taskTargetObj, null, (x, y) => x.ReceiveDamage(1, this.transform.parent.gameObject));
-            numResources++;
-        } while (taskTargetObj != null && numResources < maxResources);
+            worker.numResources += worker.resPerCollect;
+            yield return new WaitForSeconds(collectingTime);
+        }
 
-        isBusy = false;
-        curSubroutine = SubRoutine.TRAVEL_TO_DEPOSIT;
+        if (worker.numResources > worker.resourceCapacity)
+        {
+            worker.numResources = worker.resourceCapacity;
+        }
+        // We still have the capacity to collect more, find closest resource
+        else if (worker.numResources < worker.resourceCapacity)
+        {
+            GameObject closestRes = FindClosestResource(taskCoords);
+
+            if (closestRes != null)
+            {
+                taskCoords = closestRes.transform.position;
+                taskTargetObj = closestRes;
+                curSubroutine = SubRoutine.TRAVEL_TO_COLLECT;
+                isBusy = false;
+                yield return null;
+            }
+        }
+        else
+        {
+            isBusy = false;
+            curSubroutine = SubRoutine.TRAVEL_TO_DEPOSIT;
+        }
     }
 }

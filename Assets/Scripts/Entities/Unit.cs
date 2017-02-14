@@ -20,18 +20,16 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
 
     private UnitTaskManager taskMgr;
     private NavMeshAgent navMeshAgent;
-    private TextMesh textMesh;
     private Animator anim;
     private Entity entity;
     public State curState;
 
 	// Use this for initialization
 	void Start () {
-        taskMgr = GetComponent<UnitTaskManager>();
-        navMeshAgent = GetComponent<NavMeshAgent>();
-        textMesh = (TextMesh)GetComponentInChildren(typeof(TextMesh));
-        anim = GetComponent<Animator>();
-        entity = GetComponent<Entity>();
+        taskMgr = this.gameObject.GetComponent<UnitTaskManager>();
+        navMeshAgent = this.gameObject.GetComponent<NavMeshAgent>();
+        anim = this.gameObject.GetComponent<Animator>();
+        entity = this.gameObject.GetComponent<Entity>();
         curState = State.IDLE;
         anim.SetFloat("Speed_f", 0.0f);
         anim.SetInteger("MeleeType_int", 1);
@@ -95,11 +93,9 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
             curState = State.IDLE;
         }
 
-        textMesh.text = entity.curHealth + "/" + entity.maxHealth;
-
         if (curState == State.IDLE)
         {
-            textMesh.text += " (Idle)";
+            entity.AppendStatusText(" (Idle)");
             anim.SetFloat("Speed_f", 0.0f);
             anim.SetInteger("MeleeType_int", 1);
             anim.SetInteger("WeaponType_int", 0);
@@ -107,7 +103,7 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
         }
         else if (curState == State.TRAVELING)
         {
-            textMesh.text += " (Traveling)";
+            entity.AppendStatusText(" (Traveling)");
             anim.SetFloat("Speed_f", 1.0f);
             anim.SetInteger("MeleeType_int", 12);
             anim.SetInteger("WeaponType_int", 12);
@@ -115,7 +111,7 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
         }
         else if (curState == State.WORKING)
         {
-            textMesh.text += " (Working)";
+            entity.AppendStatusText(" (Working)");
             anim.SetFloat("Speed_f", 0.0f);
             anim.SetInteger("MeleeType_int", 1);
             anim.SetInteger("WeaponType_int", 12);
@@ -123,7 +119,7 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
         }
         else if (curState == State.ATTACKING)
         {
-            textMesh.text += " (Attacking)";
+            entity.AppendStatusText(" (Attacking)");
             anim.SetFloat("Speed_f", 0.0f);
             anim.SetInteger("MeleeType_int", 1);
             anim.SetInteger("WeaponType_int", 12);
@@ -131,7 +127,7 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
         }
         else if (curState == State.DEAD)
         {
-            textMesh.text += " (Dead)";
+            entity.AppendStatusText(" (Dead)");
             anim.SetFloat("Speed_f", 0.0f);
             anim.SetInteger("MeleeType_int", 1);
             anim.SetInteger("WeaponType_int", 0);

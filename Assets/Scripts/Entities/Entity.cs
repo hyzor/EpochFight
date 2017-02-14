@@ -13,6 +13,8 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
     private Renderer entityRenderer;
     private Unit unitComponent;
 
+    public TextMesh statusText;
+
     private Color dmgColorStart = Color.white;
     private Color dmgColorEnd = Color.red;
     private float dmgDuration = 0.5f;
@@ -23,9 +25,6 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
     public void ReceiveDamage(int dmg, GameObject src)
     {
         curHealth -= dmg;
-
-        //float lerp = Mathf.PingPong(Time.time, dmgDuration) / dmgDuration;
-        //entityRenderer.material.color = Color.Lerp(dmgColorStart, dmgColorEnd, lerp);
         StartCoroutine(OnDamageReceived(dmgDuration));
 
         // Is this entity a unit?
@@ -53,6 +52,7 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
     {
         curHealth = maxHealth;
         entityRenderer = GetComponent<Renderer>();
+        statusText = this.gameObject.GetComponentInChildren<TextMesh>();
 
         if (entityRenderer == null)
         {
@@ -79,9 +79,20 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
         Destroy(this.gameObject);
     }
 
+    public void AppendStatusText(string text)
+    {
+        statusText.text += text;
+    }
+
     // Update is called once per frame
     void Update ()
     {
+        if (statusText != null)
+        {
+            statusText.transform.rotation = Camera.main.transform.rotation;
+            statusText.text = curHealth + "/" + maxHealth;
+        }
+
         if (flaggedForRemoval && !removalStarted)
         {
             StartCoroutine(DestroyAfter(5.0f));

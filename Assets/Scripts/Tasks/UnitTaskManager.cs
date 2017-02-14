@@ -20,22 +20,17 @@ public class UnitTaskManager : MonoBehaviour, ITaskManagerMessageHandler {
 
     public BaseTask[] tasksAvailable;
     private BaseTask curTask;
-
-    private TextMesh unitStatusText;
-
+    
     public Vector3 taskTargetCoordinates;
     public GameObject taskTargetObject;
 
 	public void Start ()
     {
         curTask = null;
-        unitStatusText = gameObject.GetComponentInChildren<TextMesh>();
     }
 
     public void Update ()
     {
-        unitStatusText.transform.rotation = Camera.main.transform.rotation;
-
         if (curTask != null)
         {
             if (curTask.completed)

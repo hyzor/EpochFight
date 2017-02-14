@@ -7,7 +7,6 @@ using UnityEngine.EventSystems;
 public class Resource : MonoBehaviour, IClickable
 {
     private MouseListener mouseListener;
-    private TextMesh statusText;
     private Entity entity;
 
     public void OnLeftClick()
@@ -31,7 +30,6 @@ public class Resource : MonoBehaviour, IClickable
 	// Use this for initialization
 	void Start () {
         mouseListener = GameObject.Find("MouseListener").GetComponent<MouseListener>();
-        statusText = GetComponentInChildren<TextMesh>();
         entity = GetComponent<Entity>();
     }
 	
@@ -42,7 +40,5 @@ public class Resource : MonoBehaviour, IClickable
             entity.isAlive = false;
             Destroy(this.gameObject);
         }
-
-        statusText.text = entity.curHealth + "/" + entity.maxHealth;
 	}
 }
