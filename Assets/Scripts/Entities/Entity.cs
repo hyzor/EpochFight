@@ -96,10 +96,21 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
 
     public void InsertStatusTextElement(int index, string text)
     {
-        if (statusTextElements.Count < index + 1)
-            statusTextElements.Insert(index, text);
+        if (index + 1 > statusTextElements.Count)
+        {
+            int gap = (index + 1) - statusTextElements.Count;
+
+            for (int i = 0; i < gap - 1; ++i)
+            {
+                statusTextElements.Add("");
+            }
+
+            statusTextElements.Add(text);
+        }
         else
+        {
             statusTextElements[index] = text;
+        }
     }
 
     // Update is called once per frame
