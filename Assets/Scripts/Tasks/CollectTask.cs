@@ -26,10 +26,14 @@ public class CollectTask : BaseTask
         maxResources = 5;
         collectingTime = 1;
         numResources = 0;
-        curSubroutine = SubRoutine.TRAVEL_TO_COLLECT;
         Transform canvasResourceTextTrans = GameObject.Find("Canvas").transform.FindChild("ResourceText");
         worker = this.gameObject.transform.parent.GetComponent<Worker>();
         resourceCanvasElement = canvasResourceTextTrans.gameObject;
+
+        if (taskTargetObj.GetComponent<Base>() != null)
+            curSubroutine = SubRoutine.TRAVEL_TO_DEPOSIT;
+        else
+            curSubroutine = SubRoutine.TRAVEL_TO_COLLECT;
     }
 
     public override void OnDestReached()
@@ -45,7 +49,7 @@ public class CollectTask : BaseTask
             worker.numResources = 0;
             isBusy = false;
 
-            if (taskTargetObj != null)
+            if (taskTargetObj != null && taskTargetObj.GetComponent<Base>() == null)
             {
                 curSubroutine = SubRoutine.TRAVEL_TO_COLLECT;
             }
