@@ -13,6 +13,8 @@ public class IntroUiScript : MonoBehaviour {
 
     private GameObject tapToStart;
     private GameObject epochFightLogo;
+    private GameObject resText;
+    private GameObject selText;
 
     private Vector3 camOrigPos;
     private Quaternion camOrigRot;
@@ -24,12 +26,16 @@ public class IntroUiScript : MonoBehaviour {
     {
         tapToStart = GameObject.Find("TapToStart");
         epochFightLogo = GameObject.Find("EpochFightLogo");
+        resText = GameObject.Find("ResourceText");
+        selText = GameObject.Find("SelectionText");
         tapToStartImg = tapToStart.GetComponent<Image>();
         tapToStartImgColor = tapToStartImg.color;
         camOrigPos = Camera.main.transform.position;
         camOrigRot = Camera.main.transform.rotation;
         camScript = Camera.main.GetComponent<CameraScript>();
         blurOpt = Camera.main.GetComponent<BlurOptimized>();
+        resText.GetComponent<Text>().enabled = false;
+        selText.GetComponent<Text>().enabled = false;
         camScript.enabled = false;
 	}
 	
@@ -38,6 +44,8 @@ public class IntroUiScript : MonoBehaviour {
     {
         if (Input.GetMouseButton(0))
         {
+            resText.GetComponent<Text>().enabled = true;
+            selText.GetComponent<Text>().enabled = true;
             blurOpt.enabled = false;
             Camera.main.transform.position = camOrigPos;
             Camera.main.transform.rotation = camOrigRot;
@@ -45,7 +53,7 @@ public class IntroUiScript : MonoBehaviour {
             Destroy(tapToStart);
             Destroy(epochFightLogo);
             Destroy(Camera.main.GetComponent<IntroCameraScript>());
-            Destroy(this.gameObject);
+            Destroy(this);
             return;
         }
 
