@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityStandardAssets.ImageEffects;
 
 public class IntroUiScript : MonoBehaviour {
 
@@ -16,6 +17,7 @@ public class IntroUiScript : MonoBehaviour {
     private Vector3 camOrigPos;
     private Quaternion camOrigRot;
     private CameraScript camScript;
+    private BlurOptimized blurOpt;
 
     // Use this for initialization
     void Start ()
@@ -27,6 +29,7 @@ public class IntroUiScript : MonoBehaviour {
         camOrigPos = Camera.main.transform.position;
         camOrigRot = Camera.main.transform.rotation;
         camScript = Camera.main.GetComponent<CameraScript>();
+        blurOpt = Camera.main.GetComponent<BlurOptimized>();
         camScript.enabled = false;
 	}
 	
@@ -35,6 +38,7 @@ public class IntroUiScript : MonoBehaviour {
     {
         if (Input.GetMouseButton(0))
         {
+            blurOpt.enabled = false;
             Camera.main.transform.position = camOrigPos;
             Camera.main.transform.rotation = camOrigRot;
             camScript.enabled = true;
