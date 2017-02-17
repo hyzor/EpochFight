@@ -58,16 +58,19 @@ public class Enemy : MonoBehaviour, IClickable {
     {
         GameObject otherObj = other.gameObject;
 
+        // Is is an attackable object?
         if (otherObj.GetComponent<Unit>() != null || otherObj.GetComponent<Base>() != null)
         {
+            // Is the object not an ally to this enemy unit?
             if (otherObj.GetComponent<Enemy>() == null)
             {
-                if (unit.curState != Unit.State.ATTACKING)
-                {
-                    ExecuteEvents.Execute<ITaskManagerMessageHandler>(this.gameObject, null, (x, y) => x.RequestSetTask(BaseTask.TaskType.ATTACK));
-                    ExecuteEvents.Execute<ITaskManagerMessageHandler>(this.gameObject, null, (x, y) => x.SetTaskDestinationCoords(otherObj.transform.position));
-                    ExecuteEvents.Execute<ITaskManagerMessageHandler>(this.gameObject, null, (x, y) => x.SetTaskDestinationObj(otherObj));
-                }
+                // Are we already attacking something else?
+                if (unit.HasTaskAssigned() && unit.GetCurTaskType() == BaseTask.TaskType.ATTACK)
+                    return;
+
+                ExecuteEvents.Execute<ITaskManagerMessageHandler>(this.gameObject, null, (x, y) => x.RequestSetTask(BaseTask.TaskType.ATTACK));
+                ExecuteEvents.Execute<ITaskManagerMessageHandler>(this.gameObject, null, (x, y) => x.SetTaskDestinationCoords(otherObj.transform.position));
+                ExecuteEvents.Execute<ITaskManagerMessageHandler>(this.gameObject, null, (x, y) => x.SetTaskDestinationObj(otherObj));
             }
         }
 

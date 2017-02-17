@@ -141,6 +141,11 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
         }
     }
 
+    public BaseTask.TaskType GetCurTaskType()
+    {
+        return taskMgr.GetCurrentTask().taskType;
+    }
+
     public void OnReceiveDamage(GameObject src)
     {
         // Do not attack back if we are already attacking something or traveling somewhere
