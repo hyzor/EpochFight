@@ -10,10 +10,9 @@ Use ONLY Version 5.5.1f1 of Unity(https://unity3d.com/get-unity/update) to avoid
 
 ### Unit logic
 1. Worker: Collects resources and defends when attacked.
-2. Enemy: Defends when attacked.
+2. Enemy: Defends when attacked. Attacks enemy units or base when within a certain radius. Roams around randomly.
 
-TODO: Implement simple enemy AI that roams around and attacks when an enemy of the enemy is found.
-
+TODO: Implement waypoints for the enemy AI.
 
 ##### NavMesh navigation
 All units use a NavMeshController and scenes are pre-baked into NavMeshes.
