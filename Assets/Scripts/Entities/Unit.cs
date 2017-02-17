@@ -203,18 +203,6 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
 
     void OnTriggerEnter(Collider other)
     {
-        GameObject otherObj = other.gameObject;
-
-        if (otherObj.GetComponent<Unit>() != null && otherObj.GetComponent<Enemy>() == null)
-        {
-            if (curState != State.ATTACKING)
-            {
-                ExecuteEvents.Execute<ITaskManagerMessageHandler>(this.gameObject, null, (x, y) => x.RequestSetTask(BaseTask.TaskType.ATTACK));
-                ExecuteEvents.Execute<ITaskManagerMessageHandler>(this.gameObject, null, (x, y) => x.SetTaskDestinationCoords(otherObj.transform.position));
-                ExecuteEvents.Execute<ITaskManagerMessageHandler>(this.gameObject, null, (x, y) => x.SetTaskDestinationObj(otherObj));
-            }
-        }
-
         Debug.Log("Unit trigger on " + other.name + "!");
     }
 

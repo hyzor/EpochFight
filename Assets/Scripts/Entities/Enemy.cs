@@ -54,6 +54,26 @@ public class Enemy : MonoBehaviour, IClickable {
         ExecuteEvents.Execute<ITaskManagerMessageHandler>(gameObject, null, (x, y) => x.SetTaskDestinationCoords(finalPos));
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        GameObject otherObj = other.gameObject;
+
+        if (otherObj.GetComponent<Unit>() != null || otherObj.GetComponent<Base>() != null)
+        {
+            if (otherObj.GetComponent<Enemy>() == null)
+            {
+                if (unit.curState != Unit.State.ATTACKING)
+                {
+                    ExecuteEvents.Execute<ITaskManagerMessageHandler>(this.gameObject, null, (x, y) => x.RequestSetTask(BaseTask.TaskType.ATTACK));
+                    ExecuteEvents.Execute<ITaskManagerMessageHandler>(this.gameObject, null, (x, y) => x.SetTaskDestinationCoords(otherObj.transform.position));
+                    ExecuteEvents.Execute<ITaskManagerMessageHandler>(this.gameObject, null, (x, y) => x.SetTaskDestinationObj(otherObj));
+                }
+            }
+        }
+
+        Debug.Log("Enemy trigger enter!");
+    }
+
     // Update is called once per frame
     void Update ()
     {

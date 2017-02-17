@@ -65,6 +65,18 @@ public class AttackTask : BaseTask {
     public bool TargetIsWithinRange()
     {
         float dist = Vector3.Distance(entitySrc.gameObject.transform.position, taskTargetObj.transform.position);
+        BoxCollider thisBoxCol = entitySrc.gameObject.GetComponent<BoxCollider>();
+        BoxCollider targetBoxCol = taskTargetObj.GetComponent<BoxCollider>();
+        Debug.Log("Distance to target: " + dist);
+
+        if (thisBoxCol != null && targetBoxCol != null)
+        {
+            Vector3 closestSrcPoint = thisBoxCol.ClosestPointOnBounds(taskTargetObj.transform.position);
+            Vector3 closestTargetPoint = targetBoxCol.ClosestPointOnBounds(entitySrc.gameObject.transform.position);
+            
+            dist = Vector3.Distance(closestSrcPoint, closestTargetPoint);
+            Debug.Log("Distance to target with bounds: " + dist);
+        }
 
         if (dist <= entitySrc.attackRange)
             return true;
