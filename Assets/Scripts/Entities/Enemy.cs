@@ -3,9 +3,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.AI;
 
 public class Enemy : MonoBehaviour, IClickable {
     private MouseListener mouseListener;
+    private NavMeshAgent navMesh;
+    public float attackDist = 25.0f;
+    private Vector3 startPos;
+    private Unit unit;
+
+    private SphereCollider detectionRadiusSphere;
 
     public void OnLeftClick()
     {
@@ -20,8 +27,8 @@ public class Enemy : MonoBehaviour, IClickable {
         if (selectedUnit != null)
         {
             ExecuteEvents.Execute<ITaskManagerMessageHandler>(selectedUnit, null, (x, y) => x.RequestSetTask(BaseTask.TaskType.ATTACK));
-            ExecuteEvents.Execute<ITaskManagerMessageHandler>(selectedUnit, null, (x, y) => x.SetTaskDestinationCoords(this.gameObject.transform.position));
-            ExecuteEvents.Execute<ITaskManagerMessageHandler>(selectedUnit, null, (x, y) => x.SetTaskDestinationObj(this.gameObject));
+            ExecuteEvents.Execute<ITaskManagerMessageHandler>(selectedUnit, null, (x, y) => x.SetTaskDestinationCoords(gameObject.transform.position));
+            ExecuteEvents.Execute<ITaskManagerMessageHandler>(selectedUnit, null, (x, y) => x.SetTaskDestinationObj(gameObject));
             Debug.Log("Enemy right clicked!");
         }
     }
@@ -30,10 +37,29 @@ public class Enemy : MonoBehaviour, IClickable {
     void Start ()
     {
         mouseListener = GameObject.Find("MouseListener").GetComponent<MouseListener>();
+        navMesh = gameObject.GetComponent<NavMeshAgent>();
+        detectionRadiusSphere = gameObject.GetComponentInChildren<SphereCollider>();
+        unit = gameObject.GetComponent<Unit>();
+        startPos = gameObject.transform.position;
+    }
+
+    void MoveRandomly()
+    {
+        Vector3 randomDir = (UnityEngine.Random.insideUnitSphere * detectionRadiusSphere.radius) + startPos;
+        NavMeshHit hit;
+        NavMesh.SamplePosition(randomDir, out hit, detectionRadiusSphere.radius, 1);
+        Vector3 finalPos = hit.position;
+
+        ExecuteEvents.Execute<ITaskManagerMessageHandler>(gameObject, null, (x, y) => x.RequestSetTask(BaseTask.TaskType.GOTO));
+        ExecuteEvents.Execute<ITaskManagerMessageHandler>(gameObject, null, (x, y) => x.SetTaskDestinationCoords(finalPos));
     }
 
     // Update is called once per frame
     void Update ()
     {
+        if (!unit.HasTaskAssigned())
+        {
+            MoveRandomly();
+        }
     }
 }

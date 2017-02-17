@@ -70,7 +70,6 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
             navMeshAgent.Stop();
             OnDie();
         }
-            
 
         if (taskMgr.TaskIsActive())
         {
@@ -153,6 +152,19 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
         }
     }
 
+    public bool HasTaskAssigned()
+    {
+        if (taskMgr.GetCurrentTask() != null)
+            return true;
+
+        return false;
+    }
+
+    public bool HasActiveTask()
+    {
+        return taskMgr.TaskIsActive();
+    }
+
     public void OnLeftClick()
     {
         Debug.Log("Unit left clicked!");
@@ -186,6 +198,24 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
         }
 
         return false;
+    }
+
+
+    void OnTriggerEnter(Collider other)
+    {
+        GameObject otherObj = other.gameObject;
+
+        if (otherObj.GetComponent<Unit>() != null && otherObj.GetComponent<Enemy>() == null)
+        {
+            if (curState != State.ATTACKING)
+            {
+                ExecuteEvents.Execute<ITaskManagerMessageHandler>(this.gameObject, null, (x, y) => x.RequestSetTask(BaseTask.TaskType.ATTACK));
+                ExecuteEvents.Execute<ITaskManagerMessageHandler>(this.gameObject, null, (x, y) => x.SetTaskDestinationCoords(otherObj.transform.position));
+                ExecuteEvents.Execute<ITaskManagerMessageHandler>(this.gameObject, null, (x, y) => x.SetTaskDestinationObj(otherObj));
+            }
+        }
+
+        Debug.Log("Unit trigger on " + other.name + "!");
     }
 
     public void SetUnitState(State state)
