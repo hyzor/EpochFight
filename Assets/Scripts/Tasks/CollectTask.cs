@@ -151,7 +151,11 @@ public class CollectTask : BaseTask
     private IEnumerator CollectResource()
     {
         isBusy = true;
-        Entity curResEntity = taskTargetObj.GetComponent<Entity>();
+
+        Entity curResEntity = null;
+
+        if (taskTargetObj != null)
+            curResEntity = taskTargetObj.GetComponent<Entity>();
 
         while (taskTargetObj != null && worker.numResources < worker.resourceCapacity)
         {
@@ -159,26 +163,41 @@ public class CollectTask : BaseTask
             if (worker.resPerCollect <= curResEntity.curHealth && worker.numResources + worker.resPerCollect <= worker.resourceCapacity)
             {
                 yield return new WaitForSeconds(collectingTime);
-                ExecuteEvents.Execute<IEntityMessageHandler>(taskTargetObj, null, (x, y) => x.ReceiveDamage(worker.resPerCollect, this.transform.parent.gameObject));
-                worker.numResources += worker.resPerCollect;
+
+                // Double-check resource health after waiting
+                if (curResEntity.curHealth > 0)
+                {
+                    ExecuteEvents.Execute<IEntityMessageHandler>(taskTargetObj, null, (x, y) => x.ReceiveDamage(worker.resPerCollect, this.transform.parent.gameObject));
+                    worker.numResources += worker.resPerCollect;
+                }
             }
 
             // We are about to reach our capacity, so fill the worker with the remaining number of resources
             else if (worker.resPerCollect <= curResEntity.curHealth && worker.numResources + worker.resPerCollect > worker.resourceCapacity)
             {
                 yield return new WaitForSeconds(collectingTime);
-                int resToFill = worker.resourceCapacity - worker.numResources;
-                ExecuteEvents.Execute<IEntityMessageHandler>(taskTargetObj, null, (x, y) => x.ReceiveDamage(resToFill, this.transform.parent.gameObject));
-                worker.numResources += resToFill;
+
+                // Double-check resource health after waiting
+                if (curResEntity.curHealth > 0)
+                {
+                    int resToFill = worker.resourceCapacity - worker.numResources;
+                    ExecuteEvents.Execute<IEntityMessageHandler>(taskTargetObj, null, (x, y) => x.ReceiveDamage(resToFill, this.transform.parent.gameObject));
+                    worker.numResources += resToFill;
+                }
             }
 
             // The resource contains less resources than what we can collect, so collect the remaining amount
             else
             {
                 yield return new WaitForSeconds(collectingTime);
-                int resToFill = curResEntity.curHealth;
-                ExecuteEvents.Execute<IEntityMessageHandler>(taskTargetObj, null, (x, y) => x.ReceiveDamage(resToFill, this.transform.parent.gameObject));
-                worker.numResources += resToFill;
+
+                // Double-check resource health after waiting
+                if (curResEntity.curHealth > 0)
+                {
+                    int resToFill = curResEntity.curHealth;
+                    ExecuteEvents.Execute<IEntityMessageHandler>(taskTargetObj, null, (x, y) => x.ReceiveDamage(resToFill, this.transform.parent.gameObject));
+                    worker.numResources += resToFill;
+                }
             }
         }
 
