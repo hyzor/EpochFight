@@ -15,6 +15,8 @@ public class Enemy : MonoBehaviour, IClickable {
     private DetectionCollider detCol;
     public bool randomMovement = true;
 
+    private Patrol patrol;
+
     public void OnLeftClick()
     {
         // Do nothing
@@ -42,6 +44,7 @@ public class Enemy : MonoBehaviour, IClickable {
         unit = gameObject.GetComponent<Unit>();
         startPos = gameObject.transform.position;
         detCol = gameObject.GetComponentInChildren<DetectionCollider>();
+        patrol = gameObject.GetComponent<Patrol>();
     }
 
     void MoveRandomly()
@@ -128,6 +131,8 @@ public class Enemy : MonoBehaviour, IClickable {
             // Try to find an attackable target
             if (FindTargetAndAttack())
                 Debug.Log(this.name + " attacking!");
+            else if (patrol != null)
+                patrol.NextWaypoint();
             else if (randomMovement)
                 MoveRandomly();
         }
