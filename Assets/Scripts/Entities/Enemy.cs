@@ -13,6 +13,7 @@ public class Enemy : MonoBehaviour, IClickable {
     private SphereCollider detectionRadiusSphere;
 
     private DetectionCollider detCol;
+    public bool randomMovement = true;
 
     public void OnLeftClick()
     {
@@ -127,7 +128,7 @@ public class Enemy : MonoBehaviour, IClickable {
             // Try to find an attackable target
             if (FindTargetAndAttack())
                 Debug.Log(this.name + " attacking!");
-            else
+            else if (randomMovement)
                 MoveRandomly();
         }
 
