@@ -9,6 +9,7 @@ public class MouseListener : MonoBehaviour {
     public Vector3 actionCoordinates;
     private Color selectionColorCache;
     private GameObject selectedCanvasElement;
+    public float maxRaycastDist = 1000.0f;
 
     private Renderer selectedObjRenderer;
 
@@ -37,7 +38,7 @@ public class MouseListener : MonoBehaviour {
             RaycastHit hit;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-            if (Physics.Raycast (ray, out hit, 100.0f))
+            if (Physics.Raycast (ray, out hit, maxRaycastDist))
             {
                 Debug.Log("Left click hit " + hit.transform.name);
                 GameObject selection = hit.transform.gameObject;
@@ -47,7 +48,8 @@ public class MouseListener : MonoBehaviour {
                     Deselect(selectedObj);
                 }
 
-                if (hit.transform.name == "Ground")
+                // Ingore ground (TODO: also ignore environment)
+                if (hit.transform.gameObject.GetComponent<Ground>() != null)
                     return;
 
                 Select(hit.transform.gameObject);
@@ -63,7 +65,7 @@ public class MouseListener : MonoBehaviour {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             Debug.Log("Right click on " + actionCoordinates);
 
-            if (Physics.Raycast(ray, out hit, 100.0f))
+            if (Physics.Raycast(ray, out hit, maxRaycastDist))
             {
                 Debug.Log("Right click hit " + hit.transform.name);
                 actionObj = hit.transform.gameObject;
