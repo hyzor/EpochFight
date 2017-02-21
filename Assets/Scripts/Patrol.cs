@@ -8,6 +8,7 @@ public class Patrol : MonoBehaviour {
     private NavMeshAgent navMesh;
     public List<Transform> waypoints;
     private int curWaypoint = 0;
+    public float patrolWaitTime = 3.0f;
 
 	// Use this for initialization
 	void Start ()

@@ -16,6 +16,8 @@ public class Enemy : MonoBehaviour, IClickable {
     public bool randomMovement = true;
 
     private Patrol patrol;
+    private float timeSinceLastPatrol;
+    bool pollNextPatrolWaypoint = false;
 
     public void OnLeftClick()
     {
@@ -132,7 +134,21 @@ public class Enemy : MonoBehaviour, IClickable {
             if (FindTargetAndAttack())
                 Debug.Log(this.name + " attacking!");
             else if (patrol != null)
-                patrol.NextWaypoint();
+            {
+                // Start taking time since we last patrolled
+                if (!pollNextPatrolWaypoint)
+                {
+                    timeSinceLastPatrol = Time.time;
+                    pollNextPatrolWaypoint = true;
+                }
+
+                // If we have waited long enough, start patrolling to the next waypoint
+                if (Time.time - timeSinceLastPatrol >= patrol.patrolWaitTime)
+                {
+                    patrol.NextWaypoint();
+                    pollNextPatrolWaypoint = false;
+                }
+            }
             else if (randomMovement)
                 MoveRandomly();
         }
