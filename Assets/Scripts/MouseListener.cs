@@ -78,7 +78,7 @@ public class MouseListener : MonoBehaviour {
 
     public GameObject GetSelectedAlliedWorker()
     {
-        if (selectedObj != null && selectedObj.name == "Worker")
+        if (selectedObj != null && selectedObj.GetComponent<Worker>() != null)
         {
             if (selectedObj.GetComponent<Enemy>() == null)
             {
