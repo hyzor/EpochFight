@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class AttackTask : BaseTask {
-
+public class AttackTask : BaseTask
+{
     private Entity entityTarget;
     private Entity entitySrc;
+    private Vector3 prevTargetCoords;
 
     public enum SubRoutine
     {
@@ -34,6 +35,7 @@ public class AttackTask : BaseTask {
         curSubroutine = SubRoutine.TRAVEL_TO_ATTACK;
         entityTarget = taskTargetObj.GetComponent<Entity>();
         entitySrc = this.transform.parent.gameObject.GetComponent<Entity>();
+        prevTargetCoords = taskTargetObj.transform.position;
     }
 	
 	// Update is called once per frame
@@ -42,16 +44,11 @@ public class AttackTask : BaseTask {
         if (taskTargetObj == null || !entityTarget.isAlive)
             Destroy(this.gameObject);
 
-        if (curSubroutine == SubRoutine.TRAVEL_TO_ATTACK && !TargetIsWithinRange())
-        {
-            ExecuteEvents.Execute<IUnitMessageHandler>(this.transform.parent.gameObject, null, (x, y) => x.OrderUnitToCoords(entityTarget.gameObject.transform.position));
-        }
-
         if (!isBusy)
         {
             if (curSubroutine == SubRoutine.TRAVEL_TO_ATTACK)
             {
-                ExecuteEvents.Execute<IUnitMessageHandler>(this.transform.parent.gameObject, null, (x, y) => x.OrderUnitToCoords(entityTarget.gameObject.transform.position));
+                ExecuteEvents.Execute<IUnitMessageHandler>(this.transform.parent.gameObject, null, (x, y) => x.OrderUnitToCoords(taskTargetObj.transform.position));
                 isBusy = true;
             }
             else if (curSubroutine == SubRoutine.ATTACK)
@@ -60,22 +57,33 @@ public class AttackTask : BaseTask {
                 StartCoroutine(Attack());
             }
         }
-	}
+
+        if (curSubroutine == SubRoutine.TRAVEL_TO_ATTACK && !TargetIsWithinRange())
+        {
+            // Target has moved, so order unit to new coordinates
+            if (taskTargetObj.transform.position != prevTargetCoords)
+            {
+                ExecuteEvents.Execute<IUnitMessageHandler>(this.transform.parent.gameObject, null, (x, y) => x.OrderUnitToCoords(taskTargetObj.transform.position));
+                prevTargetCoords = taskTargetObj.transform.position;
+            }
+        }
+    }
 
     public bool TargetIsWithinRange()
     {
-        float dist = Vector3.Distance(entitySrc.gameObject.transform.position, taskTargetObj.transform.position);
-        BoxCollider thisBoxCol = entitySrc.gameObject.GetComponent<BoxCollider>();
+        float dist = Vector3.Distance(this.transform.parent.gameObject.transform.position, taskTargetObj.transform.position);
+
+        BoxCollider thisBoxCol = this.transform.parent.gameObject.GetComponent<BoxCollider>();
         BoxCollider targetBoxCol = taskTargetObj.GetComponent<BoxCollider>();
-        Debug.Log("Distance to target: " + dist);
+        //Debug.Log("Distance to target: " + dist);
 
         if (thisBoxCol != null && targetBoxCol != null)
         {
             Vector3 closestSrcPoint = thisBoxCol.ClosestPointOnBounds(taskTargetObj.transform.position);
-            Vector3 closestTargetPoint = targetBoxCol.ClosestPointOnBounds(entitySrc.gameObject.transform.position);
+            Vector3 closestTargetPoint = targetBoxCol.ClosestPointOnBounds(this.transform.parent.gameObject.transform.position);
             
             dist = Vector3.Distance(closestSrcPoint, closestTargetPoint);
-            Debug.Log("Distance to target with bounds: " + dist);
+            //Debug.Log("Distance to target with bounds: " + dist);
         }
 
         if (dist <= entitySrc.attackRange)

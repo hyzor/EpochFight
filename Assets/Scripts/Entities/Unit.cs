@@ -205,12 +205,6 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
         return false;
     }
 
-
-    void OnTriggerEnter(Collider other)
-    {
-        Debug.Log("Unit trigger on " + other.name + "!");
-    }
-
     public void SetUnitState(State state)
     {
         curState = state;

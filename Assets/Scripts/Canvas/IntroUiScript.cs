@@ -7,7 +7,6 @@ using UnityStandardAssets.ImageEffects;
 public class IntroUiScript : MonoBehaviour {
 
     private Image tapToStartImg;
-    private Color tapToStartImgColor;
     private float lerp;
     public float duration = 1.0f;
 
@@ -29,7 +28,6 @@ public class IntroUiScript : MonoBehaviour {
         resText = GameObject.Find("ResourceText");
         selText = GameObject.Find("SelectionText");
         tapToStartImg = tapToStart.GetComponent<Image>();
-        tapToStartImgColor = tapToStartImg.color;
         camOrigPos = Camera.main.transform.position;
         camOrigRot = Camera.main.transform.rotation;
         camScript = Camera.main.GetComponent<CameraScript>();

@@ -106,13 +106,13 @@ public class CollectTask : BaseTask
     {
         Resource[] resources = GameObject.FindObjectsOfType<Resource>();
         Resource closestRes = null;
-        float closesResDist = -1;
+        float closesResDist = float.MaxValue;
 
         foreach(Resource resObj in resources)
         {
             float dist = Vector3.Distance(coords, resObj.transform.position);
 
-            if (closesResDist == -1 || dist < closesResDist)
+            if (dist < closesResDist)
             {
                 closesResDist = dist;
                 closestRes = resObj;

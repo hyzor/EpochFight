@@ -27,13 +27,17 @@ public class Base : MonoBehaviour, IClickable
     public void OnRightClick()
     {
         GameObject selectedWorker = mouseListener.GetSelectedAlliedWorker();
-        Worker workerComponent = selectedWorker.GetComponent<Worker>();
 
-        if (selectedWorker != null && workerComponent.numResources > 0)
+        if (selectedWorker != null)
         {
-            ExecuteEvents.Execute<ITaskManagerMessageHandler>(selectedWorker, null, (x, y) => x.RequestSetTask(BaseTask.TaskType.COLLECT));
-            ExecuteEvents.Execute<ITaskManagerMessageHandler>(selectedWorker, null, (x, y) => x.SetTaskDestinationCoords(this.gameObject.transform.position));
-            ExecuteEvents.Execute<ITaskManagerMessageHandler>(selectedWorker, null, (x, y) => x.SetTaskDestinationObj(this.gameObject));
+            Worker workerComponent = selectedWorker.GetComponent<Worker>();
+
+            if (workerComponent.numResources > 0)
+            {
+                ExecuteEvents.Execute<ITaskManagerMessageHandler>(selectedWorker, null, (x, y) => x.RequestSetTask(BaseTask.TaskType.COLLECT));
+                ExecuteEvents.Execute<ITaskManagerMessageHandler>(selectedWorker, null, (x, y) => x.SetTaskDestinationCoords(this.gameObject.transform.position));
+                ExecuteEvents.Execute<ITaskManagerMessageHandler>(selectedWorker, null, (x, y) => x.SetTaskDestinationObj(this.gameObject));
+            }
         }
 
         Debug.Log("Base right clicked");

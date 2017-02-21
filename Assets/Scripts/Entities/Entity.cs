@@ -31,6 +31,8 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
     private bool removalStarted = false;
     public int statusTextIndex = 0;
 
+    private Collider myCollider;
+
     public void ReceiveDamage(int dmg, GameObject src)
     {
         curHealth -= dmg;
@@ -77,6 +79,8 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
         NavMeshAgent navMesh = this.gameObject.GetComponent<NavMeshAgent>();
         if (navMesh != null && navMesh.stoppingDistance < attackRange)
             attackRange = navMesh.stoppingDistance;
+
+        this.myCollider = this.gameObject.GetComponent<Collider>();
     }
 
     private IEnumerator DestroyAfter(float duration)
@@ -113,6 +117,16 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
         }
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        //Debug.Log(this.gameObject.name + " trigger enter with " + other.name);
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        //Debug.Log(this.gameObject.name + " trigger stay with " + other.name);
+    }
+
     // Update is called once per frame
     void Update ()
     {
@@ -136,6 +150,9 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
 
         if (curHealth <= 0)
         {
+            if (myCollider != null)
+                myCollider.enabled = false;
+
             deathTrigger = true;
         }
 	}
