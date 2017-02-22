@@ -19,7 +19,7 @@ public class MouseListener : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        Transform canvasResourceTextTrans = GameObject.Find("Canvas").transform.GetChild(1);
+        Transform canvasResourceTextTrans = GameObject.Find("Canvas_Overlay").transform.GetChild(1);
         selectedCanvasElement = canvasResourceTextTrans.gameObject;
     }
 

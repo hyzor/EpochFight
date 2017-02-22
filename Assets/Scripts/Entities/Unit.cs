@@ -118,11 +118,22 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
         }
         else if (curState == State.ATTACKING)
         {
-            entity.InsertStatusTextElement(statusTextIndex, " (Attacking)");
-            anim.SetFloat("Speed_f", 0.0f);
-            anim.SetInteger("MeleeType_int", 1);
-            anim.SetInteger("WeaponType_int", 12);
-            anim.SetInteger("Animation_int", 0);
+            if (entity.rangedAttack)
+            {
+                entity.InsertStatusTextElement(statusTextIndex, " (Attacking (Ranged))");
+                anim.SetFloat("Speed_f", 0.0f);
+                anim.SetInteger("MeleeType_int", 1);
+                anim.SetInteger("WeaponType_int", 12);
+                anim.SetInteger("Animation_int", 0);
+            }
+            else
+            {
+                entity.InsertStatusTextElement(statusTextIndex, " (Attacking)");
+                anim.SetFloat("Speed_f", 0.0f);
+                anim.SetInteger("MeleeType_int", 1);
+                anim.SetInteger("WeaponType_int", 12);
+                anim.SetInteger("Animation_int", 0);
+            }
         }
         else if (curState == State.DEAD)
         {

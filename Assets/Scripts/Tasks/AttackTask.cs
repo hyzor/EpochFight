@@ -87,7 +87,10 @@ public class AttackTask : BaseTask
         }
 
         if (dist <= entitySrc.attackRange)
+        {
+            Debug.Log("Target within range!");
             return true;
+        }
         else
             return false;
     }

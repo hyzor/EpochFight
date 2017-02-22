@@ -13,6 +13,7 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
     public int attackSpeed = 1;
     public int attackDamage = 1;
     public float attackRange = 1;
+    public bool rangedAttack = false;
 
     public bool isAlive = true;
     public bool deathTrigger = false;
@@ -75,9 +76,9 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
         unitComponent = this.gameObject.GetComponent<Unit>();
    
         // If the entity contains a NavMeshAgent, make sure that the attack range is
-        // at least as big as the NavMesh's stopping distance
+        // at least as big as the NavMesh's stopping distance for melee units
         NavMeshAgent navMesh = this.gameObject.GetComponent<NavMeshAgent>();
-        if (navMesh != null && navMesh.stoppingDistance < attackRange)
+        if (navMesh != null && navMesh.stoppingDistance < attackRange && !rangedAttack)
             attackRange = navMesh.stoppingDistance;
 
         this.myCollider = this.gameObject.GetComponent<Collider>();
