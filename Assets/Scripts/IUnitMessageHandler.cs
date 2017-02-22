@@ -8,4 +8,6 @@ public interface IUnitMessageHandler : IEventSystemHandler
     void OrderUnitToCoords(Vector3 coords);
     bool HasReachedDestination();
     void SetUnitState(Unit.State state);
+    void OrderUnitStop();
+    void OrderUnitResume();
 }

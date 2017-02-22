@@ -8,6 +8,9 @@ public class AttackTask : BaseTask
     private Entity entityTarget;
     private Entity entitySrc;
     private Vector3 prevTargetCoords;
+    private AttackScript attackScript;
+
+    private bool isAttacking;
 
     public enum SubRoutine
     {
@@ -36,6 +39,9 @@ public class AttackTask : BaseTask
         entityTarget = taskTargetObj.GetComponent<Entity>();
         entitySrc = this.transform.parent.gameObject.GetComponent<Entity>();
         prevTargetCoords = taskTargetObj.transform.position;
+        attackScript = this.transform.parent.gameObject.GetComponent<AttackScript>();
+        attackScript.targetObj = taskTargetObj;
+        isAttacking = false;
     }
 	
 	// Update is called once per frame
@@ -58,6 +64,7 @@ public class AttackTask : BaseTask
             }
         }
 
+        // Poll this constantly
         if (curSubroutine == SubRoutine.TRAVEL_TO_ATTACK && !TargetIsWithinRange())
         {
             // Target has moved, so order unit to new coordinates
@@ -66,6 +73,14 @@ public class AttackTask : BaseTask
                 ExecuteEvents.Execute<IUnitMessageHandler>(this.transform.parent.gameObject, null, (x, y) => x.OrderUnitToCoords(taskTargetObj.transform.position));
                 prevTargetCoords = taskTargetObj.transform.position;
             }
+        }
+
+        // Force unit to stop and start attacking if target is within range
+        if (!isAttacking && TargetIsWithinRange())
+        {
+            ExecuteEvents.Execute<IUnitMessageHandler>(this.transform.parent.gameObject, null, (x, y) => x.SetUnitState(Unit.State.ATTACKING));
+            ExecuteEvents.Execute<IUnitMessageHandler>(this.transform.parent.gameObject, null, (x, y) => x.OrderUnitStop());
+            StartCoroutine(Attack());
         }
     }
 
@@ -86,7 +101,7 @@ public class AttackTask : BaseTask
             //Debug.Log("Distance to target with bounds: " + dist);
         }
 
-        if (dist <= entitySrc.attackRange)
+        if (dist <= attackScript.range)
         {
             Debug.Log("Target within range!");
             return true;
@@ -98,11 +113,21 @@ public class AttackTask : BaseTask
     private IEnumerator Attack()
     {
         isBusy = true;
+        isAttacking = true;
 
         do
         {
-            yield return new WaitForSeconds(entitySrc.attackSpeed); // Attack speed
-            ExecuteEvents.Execute<IEntityMessageHandler>(taskTargetObj, null, (x, y) => x.ReceiveDamage(entitySrc.attackDamage, entitySrc.gameObject));
+            attackScript.BeginAttack();
+
+            yield return new WaitForSeconds(attackScript.speed); // Attack speed
+
+            // Attack is melee, send damage instantly
+            if (!attackScript.isRanged)
+                ExecuteEvents.Execute<IEntityMessageHandler>(taskTargetObj, null, (x, y) => x.ReceiveDamage(attackScript.damage, entitySrc.gameObject));
+            else
+            {
+                attackScript.DoAttack();
+            }
         } while (taskTargetObj != null && entityTarget.isAlive && TargetIsWithinRange());
 
         if (taskTargetObj != null)
@@ -115,12 +140,14 @@ public class AttackTask : BaseTask
                 {
                     curSubroutine = SubRoutine.TRAVEL_TO_ATTACK;
                     isBusy = false;
+                    isAttacking = false;
                 }
             }
         }
         else
         {
             isBusy = false;
+            isAttacking = false;
             Destroy(this.gameObject);
         }
     }

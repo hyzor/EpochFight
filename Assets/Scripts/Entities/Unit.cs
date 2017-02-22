@@ -24,6 +24,7 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
     private Entity entity;
     public State curState;
     public int statusTextIndex = 1;
+    private AttackScript attackScript;
 
 	// Use this for initialization
 	void Start () {
@@ -37,6 +38,7 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
         anim.SetInteger("WeaponType_int", 0);
         anim.SetInteger("Animation_int", 2);
         anim.SetBool("Static_b", true);
+        attackScript = this.gameObject.GetComponent<AttackScript>();
     }
 
     public void OnDie()
@@ -118,22 +120,7 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
         }
         else if (curState == State.ATTACKING)
         {
-            if (entity.rangedAttack)
-            {
-                entity.InsertStatusTextElement(statusTextIndex, " (Attacking (Ranged))");
-                anim.SetFloat("Speed_f", 0.0f);
-                anim.SetInteger("MeleeType_int", 1);
-                anim.SetInteger("WeaponType_int", 12);
-                anim.SetInteger("Animation_int", 0);
-            }
-            else
-            {
-                entity.InsertStatusTextElement(statusTextIndex, " (Attacking)");
-                anim.SetFloat("Speed_f", 0.0f);
-                anim.SetInteger("MeleeType_int", 1);
-                anim.SetInteger("WeaponType_int", 12);
-                anim.SetInteger("Animation_int", 0);
-            }
+            entity.InsertStatusTextElement(statusTextIndex, " (Attacking)");
         }
         else if (curState == State.DEAD)
         {
@@ -198,6 +185,16 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
             navMeshAgent.SetDestination(coords);
             curState = State.TRAVELING;
         }
+    }
+
+    public void OrderUnitStop()
+    {
+        navMeshAgent.Stop();
+    }
+
+    public void OrderUnitResume()
+    {
+        navMeshAgent.Resume();
     }
 
     public bool HasReachedDestination()

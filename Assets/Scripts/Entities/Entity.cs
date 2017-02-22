@@ -9,12 +9,6 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
     public int maxHealth = 1;
     public int curHealth = 1;
 
-    // For entities with the ability to attack
-    public int attackSpeed = 1;
-    public int attackDamage = 1;
-    public float attackRange = 1;
-    public bool rangedAttack = false;
-
     public bool isAlive = true;
     public bool deathTrigger = false;
     public bool flaggedForRemoval = false;
@@ -33,6 +27,7 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
     public int statusTextIndex = 0;
 
     private Collider myCollider;
+    private AttackScript attackScript;
 
     public void ReceiveDamage(int dmg, GameObject src)
     {
@@ -74,13 +69,9 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
         matColorCache = entityRenderer.material.color;
 
         unitComponent = this.gameObject.GetComponent<Unit>();
-   
-        // If the entity contains a NavMeshAgent, make sure that the attack range is
-        // at least as big as the NavMesh's stopping distance for melee units
-        NavMeshAgent navMesh = this.gameObject.GetComponent<NavMeshAgent>();
-        if (navMesh != null && navMesh.stoppingDistance < attackRange && !rangedAttack)
-            attackRange = navMesh.stoppingDistance;
 
+        NavMeshAgent navMesh = this.gameObject.GetComponent<NavMeshAgent>();
+        attackScript = this.gameObject.GetComponent<AttackScript>();
         this.myCollider = this.gameObject.GetComponent<Collider>();
     }
 

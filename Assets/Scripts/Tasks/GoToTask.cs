@@ -17,6 +17,7 @@ public class GoToTask : BaseTask {
         {
             if (this.transform.parent != null)
             {
+                ExecuteEvents.Execute<IUnitMessageHandler>(this.transform.parent.gameObject, null, (x, y) => x.OrderUnitResume());
                 ExecuteEvents.Execute<IUnitMessageHandler>(this.transform.parent.gameObject, null, (x, y) => x.OrderUnitToCoords(taskCoords));
                 isBusy = true;
                 isActive = true;

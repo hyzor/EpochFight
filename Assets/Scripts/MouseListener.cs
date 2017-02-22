@@ -18,13 +18,19 @@ public class MouseListener : MonoBehaviour {
     private float duration = 1.0f;
 
     // Use this for initialization
-    void Start () {
-        Transform canvasResourceTextTrans = GameObject.Find("Canvas_Overlay").transform.GetChild(1);
-        selectedCanvasElement = canvasResourceTextTrans.gameObject;
+    void Start ()
+    {
+        GameObject canvasOverlayObj = GameObject.Find("Canvas_Overlay");
+
+        if (canvasOverlayObj != null)
+        {
+            selectedCanvasElement = canvasOverlayObj.transform.GetChild(1).gameObject;
+        }
     }
 
     // Update is called once per frame
-    void Update () {
+    void Update ()
+    {
 
         if (selectedObj != null)
         {
@@ -121,7 +127,8 @@ public class MouseListener : MonoBehaviour {
         selectionColorCache = selectedObjRenderer.material.color;
         //renderer.material.color = Color.red;
 
-        ExecuteEvents.Execute<ICanvasMessageHandler>(selectedCanvasElement, null, (x, y) => x.SetComponentText("Selected: " + selectedObj.name));
+        if (selectedCanvasElement != null)
+            ExecuteEvents.Execute<ICanvasMessageHandler>(selectedCanvasElement, null, (x, y) => x.SetComponentText("Selected: " + selectedObj.name));
     }
 
     private void Deselect(GameObject obj)
@@ -130,6 +137,7 @@ public class MouseListener : MonoBehaviour {
         selectedObj = null;
         selectedObjRenderer = null;
 
-        ExecuteEvents.Execute<ICanvasMessageHandler>(selectedCanvasElement, null, (x, y) => x.SetComponentText("Selected: "));
+        if (selectedCanvasElement != null)
+            ExecuteEvents.Execute<ICanvasMessageHandler>(selectedCanvasElement, null, (x, y) => x.SetComponentText("Selected: "));
     }
 }
