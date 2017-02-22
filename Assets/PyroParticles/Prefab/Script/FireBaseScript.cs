@@ -140,7 +140,7 @@ namespace DigitalRuby.PyroParticles
             else if (Duration <= 0.0f)
             {
                 // time to stop, no duration left
-                //Stop();
+                Stop();
             }
         }
 
