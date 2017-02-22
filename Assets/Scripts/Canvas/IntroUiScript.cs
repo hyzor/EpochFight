@@ -20,6 +20,8 @@ public class IntroUiScript : MonoBehaviour {
     private CameraScript camScript;
     private BlurOptimized blurOpt;
 
+    private GameObject introParticles;
+
     // Use this for initialization
     void Start ()
     {
@@ -35,6 +37,7 @@ public class IntroUiScript : MonoBehaviour {
         resText.GetComponent<Text>().enabled = false;
         selText.GetComponent<Text>().enabled = false;
         camScript.enabled = false;
+        introParticles = GameObject.Find("IntroParticles");
 	}
 	
 	// Update is called once per frame
@@ -50,6 +53,7 @@ public class IntroUiScript : MonoBehaviour {
             camScript.enabled = true;
             Destroy(tapToStart);
             Destroy(epochFightLogo);
+            Destroy(introParticles);
             Destroy(Camera.main.GetComponent<IntroCameraScript>());
             Destroy(this);
             return;
