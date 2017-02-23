@@ -18,6 +18,7 @@ public class Enemy : MonoBehaviour, IClickable {
     private Patrol patrol;
     private float timeSinceLastPatrol;
     bool pollNextPatrolWaypoint = false;
+    private Entity entity;
 
     public void OnLeftClick()
     {
@@ -47,6 +48,7 @@ public class Enemy : MonoBehaviour, IClickable {
         startPos = gameObject.transform.position;
         detCol = gameObject.GetComponentInChildren<DetectionCollider>();
         patrol = gameObject.GetComponent<Patrol>();
+        entity = this.gameObject.GetComponent<Entity>();
     }
 
     void MoveRandomly()
@@ -127,6 +129,9 @@ public class Enemy : MonoBehaviour, IClickable {
     // Update is called once per frame
     void Update ()
     {
+        if (!entity.isAlive)
+            return;
+
         // Are we idle?
         if (!unit.HasTaskAssigned())
         {

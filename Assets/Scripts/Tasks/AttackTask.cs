@@ -118,7 +118,7 @@ public class AttackTask : BaseTask
 
         if (dist <= attackScript.range)
         {
-            Debug.Log("Target within range!");
+            //Debug.Log("Target within range!");
             return true;
         }
         else

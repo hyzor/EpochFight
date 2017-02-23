@@ -22,7 +22,12 @@ public class Projectile : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        // Do not collide with source gameobject
         if (other.gameObject == srcObject)
+            return;
+
+        // Do not collide with other projectiles
+        if (other.gameObject.GetComponent<Projectile>() != null)
             return;
 
         Entity otherEntity = other.gameObject.GetComponent<Entity>();
