@@ -19,8 +19,7 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
 
     private Color dmgColorStart = Color.white;
     private Color dmgColorEnd = Color.red;
-    private float dmgDuration = 0.5f;
-    private Color matColorCache;
+    private float dmgDuration = 0.3f;
 
     private bool removalStarted = false;
     public int statusTextIndex = 0;
@@ -29,7 +28,6 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
     private AttackScript attackScript;
 
     public List<Renderer> entityRenderers;
-    public List<Color> renderersColorCache;
 
     public void ReceiveDamage(int dmg, GameObject src)
     {
@@ -45,10 +43,9 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
     {
         Renderer renderer = obj.GetComponent<Renderer>();
 
-        if (renderer != null)
+        if (renderer != null && !entityRenderers.Contains(renderer))
         {
             entityRenderers.Add(renderer);
-            renderersColorCache.Add(renderer.material.color);
         }
     }
 
@@ -68,9 +65,9 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
             yield return null;
         }
 
-        for (int i = 0; i < entityRenderers.Count; ++i)
+        foreach (Renderer renderer in entityRenderers)
         {
-            entityRenderers[i].material.color = renderersColorCache[i];
+            renderer.material.color = dmgColorStart;
         }
         
         yield return null;
@@ -83,12 +80,10 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
         statusText = this.gameObject.GetComponentInChildren<TextMesh>();
 
         Renderer[] renderersFound = this.gameObject.GetComponentsInChildren<Renderer>();
-        renderersColorCache = new List<Color>();
 
         foreach (Renderer renderer in renderersFound)
         {
             entityRenderers.Add(renderer);
-            renderersColorCache.Add(renderer.material.color);
         }
         
         unitComponent = this.gameObject.GetComponent<Unit>();

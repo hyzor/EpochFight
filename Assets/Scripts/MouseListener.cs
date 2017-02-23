@@ -132,7 +132,7 @@ public class MouseListener : MonoBehaviour {
     {
         for (int i = 0; i < selectedEntity.entityRenderers.Count; ++i)
         {
-            selectedEntity.entityRenderers[i].material.color = selectedEntity.renderersColorCache[i];
+            selectedEntity.entityRenderers[i].material.color = Color.white;
         }
 
         selectedObj = null;
