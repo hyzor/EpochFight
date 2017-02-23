@@ -11,6 +11,7 @@ public class AttackTask : BaseTask
     private AttackScript attackScript;
 
     private bool isAttacking;
+    private float lastAttackFinishedTime = 0.0f;
 
     public enum SubRoutine
     {
@@ -70,9 +71,23 @@ public class AttackTask : BaseTask
             // Target has moved, so order unit to new coordinates
             if (taskTargetObj.transform.position != prevTargetCoords)
             {
+                ExecuteEvents.Execute<IUnitMessageHandler>(this.transform.parent.gameObject, null, (x, y) => x.OrderUnitResume());
                 ExecuteEvents.Execute<IUnitMessageHandler>(this.transform.parent.gameObject, null, (x, y) => x.OrderUnitToCoords(taskTargetObj.transform.position));
                 prevTargetCoords = taskTargetObj.transform.position;
             }
+        }
+
+        // If we are attacking, we want to continuously turn ourselves towards the target
+        if (isAttacking)
+        {
+            Vector3 dir = (taskTargetObj.transform.position - this.gameObject.transform.parent.transform.position).normalized;
+
+            // Ignore y dimension
+            dir.y = 0.0f;
+
+            Quaternion lookRot = Quaternion.LookRotation(dir);
+            this.gameObject.transform.parent.transform.rotation
+                = Quaternion.Slerp(this.gameObject.transform.parent.transform.rotation, lookRot, Time.deltaTime * 10.0f);
         }
 
         // Force unit to stop and start attacking if target is within range
@@ -117,17 +132,31 @@ public class AttackTask : BaseTask
 
         do
         {
-            attackScript.BeginAttack();
+            if (Time.time - lastAttackFinishedTime >= attackScript.cooldown)
+            {
+                attackScript.BeginAttack();
 
-            yield return new WaitForSeconds(attackScript.speed); // Attack speed
+                yield return new WaitForSeconds(attackScript.duration); // Attack speed
 
-            // Attack is melee, send damage instantly
-            if (!attackScript.isRanged)
-                ExecuteEvents.Execute<IEntityMessageHandler>(taskTargetObj, null, (x, y) => x.ReceiveDamage(attackScript.damage, entitySrc.gameObject));
+                // Attack is melee, send damage instantly
+                if (!attackScript.isRanged)
+                {
+                    // Is target still within range?
+                    if (TargetIsWithinRange())
+                        ExecuteEvents.Execute<IEntityMessageHandler>(taskTargetObj, null, (x, y) => x.ReceiveDamage(attackScript.damage, entitySrc.gameObject));
+                }
+                else
+                {
+                    attackScript.DoAttack();
+                }
+
+                lastAttackFinishedTime = Time.time;
+            }
             else
             {
-                attackScript.DoAttack();
+                yield return null;
             }
+
         } while (taskTargetObj != null && entityTarget.isAlive && TargetIsWithinRange());
 
         if (taskTargetObj != null)

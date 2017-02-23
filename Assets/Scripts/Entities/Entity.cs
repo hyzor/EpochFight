@@ -12,7 +12,6 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
     public bool isAlive = true;
     public bool deathTrigger = false;
     public bool flaggedForRemoval = false;
-    private Renderer entityRenderer;
     private Unit unitComponent;
 
     private TextMesh statusText;
@@ -29,6 +28,9 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
     private Collider myCollider;
     private AttackScript attackScript;
 
+    public List<Renderer> entityRenderers;
+    public List<Color> renderersColorCache;
+
     public void ReceiveDamage(int dmg, GameObject src)
     {
         curHealth -= dmg;
@@ -39,6 +41,17 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
             unitComponent.OnReceiveDamage(src);
     }
 
+    public void NotifyNewGameObject(GameObject obj)
+    {
+        Renderer renderer = obj.GetComponent<Renderer>();
+
+        if (renderer != null)
+        {
+            entityRenderers.Add(renderer);
+            renderersColorCache.Add(renderer.material.color);
+        }
+    }
+
     private IEnumerator OnDamageReceived(float duration)
     {
         float startTime = Time.time;
@@ -46,11 +59,20 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
         while (startTime + duration > Time.time)
         {
             float lerp = Mathf.PingPong(Time.time, duration) / duration;
-            entityRenderer.material.color = Color.Lerp(dmgColorStart, dmgColorEnd, lerp);
+
+            foreach (Renderer renderer in entityRenderers)
+            {
+                renderer.material.color = Color.Lerp(dmgColorStart, dmgColorEnd, lerp);
+            }
+            
             yield return null;
         }
 
-        entityRenderer.material.color = matColorCache;
+        for (int i = 0; i < entityRenderers.Count; ++i)
+        {
+            entityRenderers[i].material.color = renderersColorCache[i];
+        }
+        
         yield return null;
     }
 
@@ -58,16 +80,17 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
     void Start ()
     {
         curHealth = maxHealth;
-        entityRenderer = GetComponent<Renderer>();
         statusText = this.gameObject.GetComponentInChildren<TextMesh>();
 
-        if (entityRenderer == null)
+        Renderer[] renderersFound = this.gameObject.GetComponentsInChildren<Renderer>();
+        renderersColorCache = new List<Color>();
+
+        foreach (Renderer renderer in renderersFound)
         {
-            entityRenderer = GetComponentInChildren<Renderer>();
+            entityRenderers.Add(renderer);
+            renderersColorCache.Add(renderer.material.color);
         }
-
-        matColorCache = entityRenderer.material.color;
-
+        
         unitComponent = this.gameObject.GetComponent<Unit>();
 
         NavMeshAgent navMesh = this.gameObject.GetComponent<NavMeshAgent>();
@@ -83,7 +106,12 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
         while (startTime + duration > Time.time)
         {
             float lerp = Mathf.PingPong(Time.time, duration) / duration;
-            entityRenderer.material.color = Color.Lerp(dmgColorStart, dmgColorEnd, lerp);
+
+            foreach (Renderer renderer in entityRenderers)
+            {
+                renderer.material.color = Color.Lerp(dmgColorStart, dmgColorEnd, lerp);
+            }
+            
             yield return null;
         }
 

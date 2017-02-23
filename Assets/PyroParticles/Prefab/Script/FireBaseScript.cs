@@ -40,6 +40,8 @@ namespace DigitalRuby.PyroParticles
         [Tooltip("A hint to users of the script that your object is a projectile and is meant to be shot out from a person or trap, etc.")]
         public bool IsProjectile;
 
+        public bool Loop = false;
+
         [Tooltip("Particle systems that must be manually started and will not be played on start.")]
         public ParticleSystem[] ManualParticleSystems;
 
@@ -137,7 +139,7 @@ namespace DigitalRuby.PyroParticles
                     Starting = false;
                 }
             }
-            else if (Duration <= 0.0f)
+            else if (Duration <= 0.0f && !Loop)
             {
                 // time to stop, no duration left
                 Stop();

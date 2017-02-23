@@ -5,6 +5,7 @@ using UnityEngine.EventSystems;
 
 public class MouseListener : MonoBehaviour {
     public GameObject selectedObj;
+    private Entity selectedEntity;
     public GameObject actionObj;
     public Vector3 actionCoordinates;
     private Color selectionColorCache;
@@ -32,10 +33,14 @@ public class MouseListener : MonoBehaviour {
     void Update ()
     {
 
-        if (selectedObj != null)
+        if (selectedEntity != null)
         {
             float lerp = Mathf.PingPong(Time.time, duration) / duration;
-            selectedObjRenderer.material.color = Color.Lerp(selectedColorStart, selectedColorEnd, lerp);
+
+            foreach(Renderer renderer in selectedEntity.entityRenderers)
+            {
+                renderer.material.color = Color.Lerp(selectedColorStart, selectedColorEnd, lerp);
+            }
         }
 
         // Listen for select (left mouse button)
@@ -117,15 +122,7 @@ public class MouseListener : MonoBehaviour {
         }
 
         selectedObj = obj;
-        selectedObjRenderer = selectedObj.GetComponent<Renderer>();
-
-        if (selectedObjRenderer == null)
-        {
-            selectedObjRenderer = selectedObj.GetComponentInChildren<Renderer>();
-        }
-
-        selectionColorCache = selectedObjRenderer.material.color;
-        //renderer.material.color = Color.red;
+        selectedEntity = selectedObj.GetComponent<Entity>();
 
         if (selectedCanvasElement != null)
             ExecuteEvents.Execute<ICanvasMessageHandler>(selectedCanvasElement, null, (x, y) => x.SetComponentText("Selected: " + selectedObj.name));
@@ -133,8 +130,13 @@ public class MouseListener : MonoBehaviour {
 
     private void Deselect(GameObject obj)
     {
-        selectedObjRenderer.material.color = selectionColorCache;
+        for (int i = 0; i < selectedEntity.entityRenderers.Count; ++i)
+        {
+            selectedEntity.entityRenderers[i].material.color = selectedEntity.renderersColorCache[i];
+        }
+
         selectedObj = null;
+        selectedEntity = null;
         selectedObjRenderer = null;
 
         if (selectedCanvasElement != null)

@@ -16,8 +16,6 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
         DEAD = 4
     }
 
-    public float speed = 1.0f;
-
     private UnitTaskManager taskMgr;
     private NavMeshAgent navMeshAgent;
     private Animator anim;
@@ -98,17 +96,39 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
         {
             entity.InsertStatusTextElement(statusTextIndex, " (Idle)");
             anim.SetFloat("Speed_f", 0.0f);
-            anim.SetInteger("MeleeType_int", 1);
-            anim.SetInteger("WeaponType_int", 0);
-            anim.SetInteger("Animation_int", 2);
+            anim.speed = 1.0f;
+
+            if (attackScript != null)
+            {
+                if (attackScript.attackType == AttackScript.AttackType.MELEE_ONEHANDED)
+                {
+                    anim.SetInteger("MeleeType_int", 1);
+                    anim.SetInteger("WeaponType_int", 0);
+                    anim.SetInteger("Animation_int", 2);
+                }
+                else if (attackScript.attackType == AttackScript.AttackType.RANGED_BOW)
+                {
+                    anim.SetInteger("MeleeType_int", 1);
+                    anim.SetInteger("WeaponType_int", 11);
+                    anim.SetInteger("Animation_int", 0);
+                }
+            }
+            else
+            {
+                anim.SetInteger("MeleeType_int", 1);
+                anim.SetInteger("WeaponType_int", 0);
+                anim.SetInteger("Animation_int", 2);
+            }
         }
         else if (curState == State.TRAVELING)
         {
             entity.InsertStatusTextElement(statusTextIndex, " (Traveling)");
+            anim.speed = 1.0f;
             anim.SetFloat("Speed_f", 1.0f);
             anim.SetInteger("MeleeType_int", 12);
             anim.SetInteger("WeaponType_int", 12);
             anim.SetInteger("Animation_int", 0);
+            anim.SetBool("Shoot_b", false);
         }
         else if (curState == State.WORKING)
         {
@@ -129,6 +149,7 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
             anim.SetInteger("MeleeType_int", 1);
             anim.SetInteger("WeaponType_int", 0);
             anim.SetInteger("Animation_int", 0);
+            anim.SetBool("Shoot_b", false);
         }
         else
         {
@@ -170,12 +191,12 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
 
     public void OnLeftClick()
     {
-        Debug.Log("Unit left clicked!");
+        //Debug.Log("Unit left clicked!");
     }
 
     public void OnRightClick()
     {
-        Debug.Log("Unit right clicked!");
+        //Debug.Log("Unit right clicked!");
     }
 
     public void OrderUnitToCoords(Vector3 coords)
