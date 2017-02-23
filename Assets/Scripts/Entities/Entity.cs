@@ -27,7 +27,7 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
     private Collider myCollider;
     private AttackScript attackScript;
 
-    public List<Renderer> entityRenderers;
+	public List<Renderer> entityRenderers = new List<Renderer>();
 
     public void ReceiveDamage(int dmg, GameObject src)
     {

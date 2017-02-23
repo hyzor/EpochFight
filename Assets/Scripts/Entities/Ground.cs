@@ -14,10 +14,9 @@ public class Ground : MonoBehaviour, IClickable {
 
     public void OnRightClick()
     {
-        if (mouseListener.selectedObj != null && mouseListener.selectedObj.GetComponent<Enemy>() == null)
-        {
-            ExecuteEvents.Execute<ITaskManagerMessageHandler>(mouseListener.selectedObj, null, (x, y) => x.RequestSetTask(BaseTask.TaskType.GOTO));
-            ExecuteEvents.Execute<ITaskManagerMessageHandler>(mouseListener.selectedObj, null, (x, y) => x.SetTaskDestinationCoords(mouseListener.actionCoordinates));
+		foreach(GameObject o in mouseListener.GetSelectedAlliedUnits()) {
+            ExecuteEvents.Execute<ITaskManagerMessageHandler>(o, null, (x, y) => x.RequestSetTask(BaseTask.TaskType.GOTO));
+            ExecuteEvents.Execute<ITaskManagerMessageHandler>(o, null, (x, y) => x.SetTaskDestinationCoords(mouseListener.actionCoordinates));
         }
     }
 

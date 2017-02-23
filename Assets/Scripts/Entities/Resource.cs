@@ -16,13 +16,10 @@ public class Resource : MonoBehaviour, IClickable
 
     public void OnRightClick()
     {
-        GameObject selectedWorker = mouseListener.GetSelectedAlliedWorker();
-
-        if (selectedWorker != null)
-        {
-            ExecuteEvents.Execute<ITaskManagerMessageHandler>(selectedWorker, null, (x, y) => x.RequestSetTask(BaseTask.TaskType.COLLECT));
-            ExecuteEvents.Execute<ITaskManagerMessageHandler>(selectedWorker, null, (x, y) => x.SetTaskDestinationCoords(this.gameObject.transform.position));
-            ExecuteEvents.Execute<ITaskManagerMessageHandler>(selectedWorker, null, (x, y) => x.SetTaskDestinationObj(this.gameObject));
+		foreach (GameObject o in mouseListener.GetSelectedAlliedWorkerUnits()) {
+            ExecuteEvents.Execute<ITaskManagerMessageHandler>(o, null, (x, y) => x.RequestSetTask(BaseTask.TaskType.COLLECT));
+            ExecuteEvents.Execute<ITaskManagerMessageHandler>(o, null, (x, y) => x.SetTaskDestinationCoords(this.gameObject.transform.position));
+            ExecuteEvents.Execute<ITaskManagerMessageHandler>(o, null, (x, y) => x.SetTaskDestinationObj(this.gameObject));
             Debug.Log("Resource right clicked!");
         }
     }

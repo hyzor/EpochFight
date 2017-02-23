@@ -28,13 +28,12 @@ public class Enemy : MonoBehaviour, IClickable {
     public void OnRightClick()
     {
         // Order selected unit to attack this enemy
-        GameObject selectedUnit = mouseListener.GetSelectedAlliedUnit();
+        GameObject[] selectedUnits = mouseListener.GetSelectedAlliedUnits();
 
-        if (selectedUnit != null)
-        {
-            ExecuteEvents.Execute<ITaskManagerMessageHandler>(selectedUnit, null, (x, y) => x.RequestSetTask(BaseTask.TaskType.ATTACK));
-            ExecuteEvents.Execute<ITaskManagerMessageHandler>(selectedUnit, null, (x, y) => x.SetTaskDestinationCoords(gameObject.transform.position));
-            ExecuteEvents.Execute<ITaskManagerMessageHandler>(selectedUnit, null, (x, y) => x.SetTaskDestinationObj(gameObject));
+		foreach (GameObject o in selectedUnits) {
+            ExecuteEvents.Execute<ITaskManagerMessageHandler>(o, null, (x, y) => x.RequestSetTask(BaseTask.TaskType.ATTACK));
+            ExecuteEvents.Execute<ITaskManagerMessageHandler>(o, null, (x, y) => x.SetTaskDestinationCoords(gameObject.transform.position));
+            ExecuteEvents.Execute<ITaskManagerMessageHandler>(o, null, (x, y) => x.SetTaskDestinationObj(gameObject));
             Debug.Log("Enemy right clicked!");
         }
     }
