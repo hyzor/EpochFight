@@ -30,7 +30,10 @@ public class IntroUiScript : MonoBehaviour {
         epochFightLogo = GameObject.Find("EpochFightLogo");
         resText = GameObject.Find("ResourceText");
         selText = GameObject.Find("SelectionText");
-        tapToStartImg = tapToStart.GetComponent<Image>();
+
+        if (tapToStart != null)
+            tapToStartImg = tapToStart.GetComponent<Image>();
+
         camOrigPos = Camera.main.transform.position;
         camOrigRot = Camera.main.transform.rotation;
         camScript = Camera.main.GetComponent<CameraScript>();
@@ -65,8 +68,11 @@ public class IntroUiScript : MonoBehaviour {
         float pingPong = Mathf.PingPong(Time.time, duration) / duration;
         lerp = Mathf.Lerp(1.0f, 0.0f, pingPong);
 
-        Color color = tapToStartImg.color;
-        color.a = lerp;
-        tapToStartImg.color = color;
+        if (tapToStart != null)
+        {
+            Color color = tapToStartImg.color;
+            color.a = lerp;
+            tapToStartImg.color = color;
+        }
 	}
 }

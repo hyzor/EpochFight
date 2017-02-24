@@ -61,70 +61,6 @@ public class Enemy : MonoBehaviour, IClickable {
         ExecuteEvents.Execute<ITaskManagerMessageHandler>(gameObject, null, (x, y) => x.SetTaskDestinationCoords(finalPos));
     }
 
-    private void OrderAttackOn(GameObject obj)
-    {
-        if (obj == null || !obj.GetComponent<Entity>().isAlive)
-            return;
-
-        ExecuteEvents.Execute<ITaskManagerMessageHandler>(this.gameObject, null, (x, y)
-            => x.RequestSetTask(BaseTask.TaskType.ATTACK));
-
-        ExecuteEvents.Execute<ITaskManagerMessageHandler>(this.gameObject, null, (x, y)
-            => x.SetTaskDestinationCoords(obj.transform.position));
-
-        ExecuteEvents.Execute<ITaskManagerMessageHandler>(this.gameObject, null, (x, y)
-            => x.SetTaskDestinationObj(obj));
-    }
-
-    private bool FindTargetAndAttack()
-    {
-        GameObject targetObj = null;
-
-        // Is there an enemy unit in sight? (First prio)
-        if (detCol.objectsInSight.ContainsKey(DetectionCollider.ObjTypes.UNIT))
-        {
-            targetObj = detCol.objectsInSight[DetectionCollider.ObjTypes.UNIT];
-
-            if (targetObj == null || !targetObj.GetComponent<Entity>().isAlive)
-            {
-                detCol.objectsInSight.Remove(DetectionCollider.ObjTypes.UNIT);
-                return false;
-            }
-        }
-
-        // Is there an enemy base in sight? (Second prio)
-        else if (detCol.objectsInSight.ContainsKey(DetectionCollider.ObjTypes.BASE))
-        {
-            targetObj = detCol.objectsInSight[DetectionCollider.ObjTypes.BASE];
-
-            if (targetObj == null || !targetObj.GetComponent<Entity>().isAlive)
-            {
-                detCol.objectsInSight.Remove(DetectionCollider.ObjTypes.BASE);
-                return false;
-            }
-        }
-
-        // Is there an enemy building in sight? (Third prio)
-        else if (detCol.objectsInSight.ContainsKey(DetectionCollider.ObjTypes.BUILDING))
-        {
-            targetObj = detCol.objectsInSight[DetectionCollider.ObjTypes.BUILDING];
-
-            if (targetObj == null || !targetObj.GetComponent<Entity>().isAlive)
-            {
-                detCol.objectsInSight.Remove(DetectionCollider.ObjTypes.BUILDING);
-                return false;
-            }
-        }
-
-        if (targetObj != null)
-        {
-            OrderAttackOn(targetObj);
-            return true;
-        }
-
-        return false;
-    }
-
     // Update is called once per frame
     void Update ()
     {
@@ -134,10 +70,7 @@ public class Enemy : MonoBehaviour, IClickable {
         // Are we idle?
         if (!unit.HasTaskAssigned())
         {
-            // Try to find an attackable target
-            if (FindTargetAndAttack())
-                Debug.Log(this.name + " attacking!");
-            else if (patrol != null)
+            if (patrol != null)
             {
                 // Start taking time since we last patrolled
                 if (!pollNextPatrolWaypoint)
@@ -160,7 +93,7 @@ public class Enemy : MonoBehaviour, IClickable {
         // If we find a nearby attackable target while busy with a GOTO task, we override it with an ATTACK task
         else if (unit.HasTaskAssigned() && unit.GetCurTaskType() == BaseTask.TaskType.GOTO)
         {
-            if (FindTargetAndAttack())
+            if (unit.FindTargetAndAttack())
                 Debug.Log(this.name + " attacking!");
         }
     }

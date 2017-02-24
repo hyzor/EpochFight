@@ -23,6 +23,8 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
     public State curState;
     public int statusTextIndex = 1;
     private AttackScript attackScript;
+    private DetectionCollider detCol;
+    private bool isPlayerUnit;
 
 	// Use this for initialization
 	void Start () {
@@ -37,6 +39,12 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
         anim.SetInteger("Animation_int", 2);
         anim.SetBool("Static_b", true);
         attackScript = this.gameObject.GetComponent<AttackScript>();
+        detCol = gameObject.GetComponentInChildren<DetectionCollider>();
+
+        if (gameObject.GetComponent<Enemy>() == null)
+            isPlayerUnit = true;
+        else
+            isPlayerUnit = false;
     }
 
     public void OnDie()
@@ -69,6 +77,13 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
             taskMgr.AbortCurrentTask();
             navMeshAgent.Stop();
             OnDie();
+        }
+
+        if (entity.isAlive && !HasTaskAssigned())
+        {
+            // Try to find an attackable target
+           if (FindTargetAndAttack())
+                Debug.Log(this.name + " attacking!");
         }
 
         if (taskMgr.TaskIsActive())
@@ -206,6 +221,88 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
             navMeshAgent.SetDestination(coords);
             curState = State.TRAVELING;
         }
+    }
+
+    public void OrderAttackOn(GameObject target)
+    {
+        if (target == null || !target.GetComponent<Entity>().isAlive)
+            return;
+
+        ExecuteEvents.Execute<ITaskManagerMessageHandler>(this.gameObject, null, (x, y)
+            => x.RequestSetTask(BaseTask.TaskType.ATTACK));
+
+        ExecuteEvents.Execute<ITaskManagerMessageHandler>(this.gameObject, null, (x, y)
+            => x.SetTaskDestinationCoords(target.transform.position));
+
+        ExecuteEvents.Execute<ITaskManagerMessageHandler>(this.gameObject, null, (x, y)
+            => x.SetTaskDestinationObj(target));
+    }
+
+    public bool FindTargetAndAttack()
+    {
+        GameObject targetObj = null;
+
+        DetectionCollider.ObjTypes firstPrio;
+        DetectionCollider.ObjTypes secondPrio;
+        DetectionCollider.ObjTypes thirdPrio;
+
+        if (isPlayerUnit)
+        {
+            firstPrio = DetectionCollider.ObjTypes.UNIT_ENEMY;
+            secondPrio = DetectionCollider.ObjTypes.BASE_ENEMY;
+            thirdPrio = DetectionCollider.ObjTypes.BUILDING_ENEMY;
+        }
+        else
+        {
+            firstPrio = DetectionCollider.ObjTypes.UNIT;
+            secondPrio = DetectionCollider.ObjTypes.BASE;
+            thirdPrio = DetectionCollider.ObjTypes.BUILDING;
+
+        }
+
+        // Is there an enemy unit in sight? (First prio)
+        if (detCol.objectsInSight.ContainsKey(firstPrio))
+        {
+            targetObj = detCol.objectsInSight[firstPrio];
+
+            if (targetObj == null || !targetObj.GetComponent<Entity>().isAlive)
+            {
+                detCol.objectsInSight.Remove(firstPrio);
+                return false;
+            }
+        }
+
+        // Is there an enemy base in sight? (Second prio)
+        else if (detCol.objectsInSight.ContainsKey(secondPrio))
+        {
+            targetObj = detCol.objectsInSight[secondPrio];
+
+            if (targetObj == null || !targetObj.GetComponent<Entity>().isAlive)
+            {
+                detCol.objectsInSight.Remove(secondPrio);
+                return false;
+            }
+        }
+
+        // Is there an enemy building in sight? (Third prio)
+        else if (detCol.objectsInSight.ContainsKey(thirdPrio))
+        {
+            targetObj = detCol.objectsInSight[thirdPrio];
+
+            if (targetObj == null || !targetObj.GetComponent<Entity>().isAlive)
+            {
+                detCol.objectsInSight.Remove(thirdPrio);
+                return false;
+            }
+        }
+
+        if (targetObj != null)
+        {
+            OrderAttackOn(targetObj);
+            return true;
+        }
+
+        return false;
     }
 
     public void OrderUnitStop()
