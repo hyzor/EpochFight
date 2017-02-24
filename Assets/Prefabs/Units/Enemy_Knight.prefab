@@ -173,11 +173,11 @@ GameObject:
   - component: {fileID: 114656190742378460}
   - component: {fileID: 114131386511796940}
   - component: {fileID: 114969144122468706}
-  - component: {fileID: 114005985816207748}
   - component: {fileID: 195909385863327668}
   - component: {fileID: 65181426089719954}
   - component: {fileID: 54620560375553518}
   - component: {fileID: 114797052409652852}
+  - component: {fileID: 114868848036865396}
   m_Layer: 0
   m_Name: Enemy_Knight
   m_TagString: Untagged
@@ -701,7 +701,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1322534215635824}
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 184.75134, y: 0, z: -1048.5925}
+  m_LocalPosition: {x: 165.95, y: 0, z: -1036.02}
   m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_Children:
   - {fileID: 4222790863546070}
@@ -834,7 +834,7 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1.5, y: 3, z: 1.5}
+  m_Size: {x: 1.1, y: 3, z: 1.2}
   m_Center: {x: 0, y: 1.5, z: 0}
 --- !u!95 &95770563991317484
 Animator:
@@ -874,18 +874,6 @@ TextMesh:
   m_Color:
     serializedVersion: 2
     rgba: 4294967295
---- !u!114 &114005985816207748
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1322534215635824}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ce390a1a93b284e4281dd9cfb73ed85e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  randomMovement: 0
 --- !u!114 &114101486191584652
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -943,10 +931,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cdb7f1a30990c0540a94fe4821b3bb19, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  duration: 1
+  duration: 1.2
   cooldown: 0.5
-  range: 2
-  damage: 1
+  range: 4
+  damage: 2
   attackType: 1
   isRanged: 0
   projectilePrefab: {fileID: 0}
@@ -959,6 +947,18 @@ MonoBehaviour:
   - {fileID: 8300000, guid: ebcbb664018f947728cb9b67468b0f48, type: 3}
   - {fileID: 8300000, guid: f3645d7388d9f4efc88a56c59b3a70d4, type: 3}
   - {fileID: 8300000, guid: 4ae4fe17d19c04e10920bfaca3bd8290, type: 3}
+--- !u!114 &114868848036865396
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1322534215635824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce390a1a93b284e4281dd9cfb73ed85e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  randomMovement: 0
 --- !u!114 &114969144122468706
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1056,12 +1056,12 @@ NavMeshAgent:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1322534215635824}
   m_Enabled: 1
-  m_Radius: 1
+  m_Radius: 0.7
   m_Speed: 15
   m_Acceleration: 15
   avoidancePriority: 50
   m_AngularSpeed: 275
-  m_StoppingDistance: 2
+  m_StoppingDistance: 4
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1

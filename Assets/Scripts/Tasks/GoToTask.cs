@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class GoToTask : BaseTask {
-
+public class GoToTask : BaseTask
+{
     public override void OnDestReached()
     {
         completed = true;
@@ -17,7 +17,6 @@ public class GoToTask : BaseTask {
         {
             if (this.transform.parent != null)
             {
-                ExecuteEvents.Execute<IUnitMessageHandler>(this.transform.parent.gameObject, null, (x, y) => x.OrderUnitResume());
                 ExecuteEvents.Execute<IUnitMessageHandler>(this.transform.parent.gameObject, null, (x, y) => x.OrderUnitToCoords(taskCoords));
                 isBusy = true;
                 isActive = true;

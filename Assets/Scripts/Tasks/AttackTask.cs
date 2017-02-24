@@ -71,7 +71,6 @@ public class AttackTask : BaseTask
             // Target has moved, so order unit to new coordinates
             if (taskTargetObj.transform.position != prevTargetCoords)
             {
-                ExecuteEvents.Execute<IUnitMessageHandler>(this.transform.parent.gameObject, null, (x, y) => x.OrderUnitResume());
                 ExecuteEvents.Execute<IUnitMessageHandler>(this.transform.parent.gameObject, null, (x, y) => x.OrderUnitToCoords(taskTargetObj.transform.position));
                 prevTargetCoords = taskTargetObj.transform.position;
             }

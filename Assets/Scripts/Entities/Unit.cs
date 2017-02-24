@@ -222,6 +222,7 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
     {
         if (entity.isAlive)
         {
+            OrderUnitResume();
             navMeshAgent.SetDestination(coords);
             curState = State.TRAVELING;
         }

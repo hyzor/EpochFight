@@ -18,7 +18,6 @@ public class Projectile : MonoBehaviour
     // Update is called once per frame
     void Update ()
     {
-		
 	}
 
     private void OnTriggerEnter(Collider other)
@@ -29,6 +28,11 @@ public class Projectile : MonoBehaviour
 
         // Do not collide with other projectiles
         if (other.gameObject.GetComponent<Projectile>() != null)
+            return;
+
+        // Do not collide with friendly entities
+        if (srcObject.GetComponent<Enemy>() != null && other.gameObject.GetComponent<Enemy>() != null
+            || srcObject.GetComponent<Enemy>() == null && other.gameObject.GetComponent<Enemy>() == null)
             return;
 
         Entity otherEntity = other.gameObject.GetComponent<Entity>();

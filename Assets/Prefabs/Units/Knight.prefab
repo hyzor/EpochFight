@@ -548,7 +548,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1161363629228656}
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 187.58435, y: 0, z: -1040.2642}
+  m_LocalPosition: {x: 165.95, y: 0, z: -1036.02}
   m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_Children:
   - {fileID: 4102056766725104}
@@ -833,7 +833,7 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1.5, y: 3, z: 1.5}
+  m_Size: {x: 1.1, y: 3, z: 1.2}
   m_Center: {x: 0, y: 1.5, z: 0}
 --- !u!95 &95572394625159398
 Animator:
@@ -884,10 +884,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cdb7f1a30990c0540a94fe4821b3bb19, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  duration: 1
+  duration: 1.2
   cooldown: 0.5
-  range: 2
-  damage: 1
+  range: 4
+  damage: 2
   attackType: 1
   isRanged: 0
   projectilePrefab: {fileID: 0}
@@ -1043,12 +1043,12 @@ NavMeshAgent:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1161363629228656}
   m_Enabled: 1
-  m_Radius: 1
+  m_Radius: 0.7
   m_Speed: 15
   m_Acceleration: 15
   avoidancePriority: 50
   m_AngularSpeed: 275
-  m_StoppingDistance: 2
+  m_StoppingDistance: 4
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
