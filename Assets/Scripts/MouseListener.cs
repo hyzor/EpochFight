@@ -27,12 +27,29 @@ public class MouseListener : MonoBehaviour {
         }
     }
 
+	private void SelectUnitsAtClick(Vector3 point) {
+		DeselectAll();
+
+		Collider[] hits = Physics.OverlapSphere(point, selectionSphere.GetComponent<SphereCollider>().radius);
+		foreach (Collider c in hits) {
+			if (c.gameObject.GetComponent<Entity>() != null && c.gameObject.GetComponent<Enemy>() == null && c.gameObject.GetComponent<Unit>() != null) {
+				Select(c.gameObject.GetComponent<Entity>());
+			}
+		}
+
+		if (selectedCanvasElement != null) {
+			ExecuteEvents.Execute<ICanvasMessageHandler>(selectedCanvasElement, null, 
+				(x, y) => x.SetComponentText ("Selected: " + selectedEntities.Count.ToString()));
+		}
+	}
+
     // Update is called once per frame
     void Update ()
     {
 		// remove destroyed objects!
 		selectedEntities.RemoveAll(o => o == null);
 
+		// flash selected units
 		foreach (Entity e in selectedEntities) {
 			float lerp = Mathf.PingPong (Time.time, duration) / duration;
 
@@ -49,30 +66,14 @@ public class MouseListener : MonoBehaviour {
 
             if (Physics.Raycast (ray, out hit, maxRaycastDist))
             {
-				Collider[] hits = Physics.OverlapSphere(hit.point, selectionSphere.GetComponent<SphereCollider>().radius);
-				foreach (Collider c in hits) {
-					if (c.gameObject.GetComponent<Entity>() != null && c.gameObject.GetComponent<Enemy>() == null && c.gameObject.GetComponent<Unit>() != null) {
-						Select(c.gameObject.GetComponent<Entity>());
-					}
-				}
-
-                Debug.Log("Left click hit " + hit.transform.name);
-                GameObject selection = hit.transform.gameObject;
-
-				/*
-				foreach (Entity e in selectedEntities) {
+				/*foreach (Entity e in selectedEntities) {
 					Deselect(e);
 					ExecuteEvents.Execute<IClickable>(e.gameObject, null, (x, y) => x.OnLeftClick());
-				}
-				*/
+				}*/
 
-                // Ingore ground (TODO: also ignore environment)
-                if (hit.transform.gameObject.GetComponent<Ground>() != null)
-                    return;
+				SelectUnitsAtClick(hit.point);
 
-				if (hit.transform.gameObject.GetComponent<Entity> () != null) {
-					Select(hit.transform.gameObject.GetComponent<Entity>());
-				}
+                Debug.Log("Left click hit " + hit.transform.name);
             }
         }
 
@@ -97,8 +98,6 @@ public class MouseListener : MonoBehaviour {
     private void Select(Entity obj)
     {
 		selectedEntities.Add(obj);
-        if (selectedCanvasElement != null)
-            ExecuteEvents.Execute<ICanvasMessageHandler>(selectedCanvasElement, null, (x, y) => x.SetComponentText("Selected: " + obj.gameObject.name));
     }
 
 	private void DeselectAll() {
