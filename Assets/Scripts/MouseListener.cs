@@ -14,15 +14,21 @@ public class MouseListener : MonoBehaviour {
     private Color selectedColorEnd = Color.black;
     private float duration = 1.0f;
 
+	private StretchBetween directionMarker;
+	private FadeOut selectionMarker;
+
     // Use this for initialization
     void Start ()
     {
         GameObject canvasOverlayObj = GameObject.Find("Canvas_Overlay");
 		selectionSphere = transform.Find("SelectionSize").gameObject;
+		selectionMarker = transform.Find("SelectionMarker").gameObject.GetComponent<FadeOut>();
 
         if (canvasOverlayObj != null) {
             selectedCanvasElement = canvasOverlayObj.transform.GetChild(1).gameObject;
         }
+
+		directionMarker = transform.Find("DirectionMarker").GetComponent<StretchBetween>();
     }
 
 	private void SelectUnitsAtClick(Vector3 point) {
@@ -41,9 +47,21 @@ public class MouseListener : MonoBehaviour {
 		}
 	}
 
-    // Update is called once per frame
-    void Update ()
-    {
+	private Vector3 FindCenterPoint(GameObject[] gos) {
+		if (gos.Length == 0) {
+			return Vector3.zero;
+		}
+		if (gos.Length == 1) {
+			return gos [0].transform.position;
+		}
+		Bounds bounds = new Bounds(gos[0].transform.position, Vector3.zero);
+		for (int i = 1; i < gos.Length; i++) {
+			bounds.Encapsulate(gos[i].transform.position); 
+		}
+		return bounds.center;
+	}
+
+    void Update() {
 		// remove destroyed objects!
 		selectedEntities.RemoveAll(o => o == null);
 
@@ -56,21 +74,46 @@ public class MouseListener : MonoBehaviour {
 				    renderer.material.color = Color.Lerp (selectedColorStart, selectedColorEnd, lerp);
 			}
 		}
-
+			
         if (Input.GetMouseButtonDown(0)) {
 			RaycastHit hit;
 			Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
 			if (Physics.Raycast (ray, out hit, maxRaycastDist)) {
 				if (selectedEntities.Count > 0) {
-					// TODO we are still calling it "right click" 
-					ExecuteEvents.Execute<IClickable>(hit.transform.gameObject, null, (x, y) => x.OnRightClick(hit.point));
-					DeselectAll();
 				} else {
-					SelectUnitsAtClick (hit.point);
-					Debug.Log ("Left click hit " + hit.transform.name);
+					SelectUnitsAtClick(hit.point);
+					selectionMarker.StartFade();
+					selectionMarker.gameObject.transform.position = hit.point;
+					if (selectedEntities.Count > 1) {
+						directionMarker.gameObject.GetComponent<MeshRenderer> ().enabled = true;
+						directionMarker.target = hit.point;
+						directionMarker.gameObject.GetComponent<FadeOut> ().Reset ();
+					}
 				}
 			}
         }
+		if (Input.GetMouseButtonUp(0)) {
+			if (selectedEntities.Count > 0) {
+				RaycastHit hit;
+				Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
+				if (Physics.Raycast (ray, out hit, maxRaycastDist)) {
+					// TODO we are still calling it "right click" 
+					ExecuteEvents.Execute<IClickable> (hit.transform.gameObject, null, (x, y) => x.OnRightClick (hit.point));
+					DeselectAll ();
+					//directionMarker.gameObject.GetComponent<MeshRenderer>().enabled = false;
+					directionMarker.gameObject.GetComponent<FadeOut> ().StartFade ();
+				}
+			}
+		}
+
+		if (selectedEntities.Count > 0) {
+			RaycastHit hit;
+			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+			if (Physics.Raycast (ray, out hit, maxRaycastDist)) {
+				directionMarker.target = hit.point;
+				directionMarker.origin = FindCenterPoint(selectedEntities.ConvertAll(o=>o.gameObject).ToArray());
+			}
+		}
 	}
 
     private void Select(Entity obj)
