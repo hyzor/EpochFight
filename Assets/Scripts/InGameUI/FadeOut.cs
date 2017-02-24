@@ -4,12 +4,14 @@ using UnityEngine;
 
 public class FadeOut : MonoBehaviour {
 
-	public float alpha = 1;
+	public float initAlpha = 1;
 	public float seconds = 3;
-	private bool fade = false;
+	public bool fade = false;
+
+	private float alpha;
 
 	public void Start () {
-		
+		alpha = initAlpha;
 	}
 
 	public void Update () {
@@ -22,10 +24,11 @@ public class FadeOut : MonoBehaviour {
 
 	public void StartFade() {
 		fade = true;
+		alpha = initAlpha;
 	}
 
 	public void Reset() {
 		fade = false;
-		alpha = 1;
+		alpha = initAlpha;
 	}
 }

@@ -15,12 +15,14 @@ public class MouseListener : MonoBehaviour {
     private float duration = 1.0f;
 
 	private StretchBetween directionMarker;
+	private FadeOut selectionMarker;
 
     // Use this for initialization
     void Start ()
     {
         GameObject canvasOverlayObj = GameObject.Find("Canvas_Overlay");
 		selectionSphere = transform.Find("SelectionSize").gameObject;
+		selectionMarker = transform.Find("SelectionMarker").gameObject.GetComponent<FadeOut>();
 
         if (canvasOverlayObj != null) {
             selectedCanvasElement = canvasOverlayObj.transform.GetChild(1).gameObject;
@@ -79,22 +81,27 @@ public class MouseListener : MonoBehaviour {
 				if (selectedEntities.Count > 0) {
 				} else {
 					SelectUnitsAtClick(hit.point);
-					directionMarker.gameObject.GetComponent<MeshRenderer>().enabled = true;
-					directionMarker.target = hit.point;
-					directionMarker.gameObject.GetComponent<FadeOut>().Reset();
-					Debug.Log("Left click hit " + hit.transform.name);
+					selectionMarker.StartFade();
+					selectionMarker.gameObject.transform.position = hit.point;
+					if (selectedEntities.Count > 1) {
+						directionMarker.gameObject.GetComponent<MeshRenderer> ().enabled = true;
+						directionMarker.target = hit.point;
+						directionMarker.gameObject.GetComponent<FadeOut> ().Reset ();
+					}
 				}
 			}
         }
 		if (Input.GetMouseButtonUp(0)) {
-			RaycastHit hit;
-			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-			if (Physics.Raycast (ray, out hit, maxRaycastDist)) {
-				// TODO we are still calling it "right click" 
-				ExecuteEvents.Execute<IClickable>(hit.transform.gameObject, null, (x, y) => x.OnRightClick(hit.point));
-				DeselectAll();
-				//directionMarker.gameObject.GetComponent<MeshRenderer>().enabled = false;
-				directionMarker.gameObject.GetComponent<FadeOut>().StartFade();
+			if (selectedEntities.Count > 0) {
+				RaycastHit hit;
+				Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
+				if (Physics.Raycast (ray, out hit, maxRaycastDist)) {
+					// TODO we are still calling it "right click" 
+					ExecuteEvents.Execute<IClickable> (hit.transform.gameObject, null, (x, y) => x.OnRightClick (hit.point));
+					DeselectAll ();
+					//directionMarker.gameObject.GetComponent<MeshRenderer>().enabled = false;
+					directionMarker.gameObject.GetComponent<FadeOut> ().StartFade ();
+				}
 			}
 		}
 
