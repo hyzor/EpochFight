@@ -1,6 +1,6 @@
 ﻿using System;
 
-public struct Event {
+public struct EpochEvent {
 	public string type;
 	public Object value;
 }
