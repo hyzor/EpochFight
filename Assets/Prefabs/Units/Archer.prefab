@@ -421,7 +421,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1334133970019652}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 70.43, y: -8.7699995, z: -1370.5}
+  m_LocalPosition: {x: 164.125, y: 0, z: -1039.18}
   m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_Children:
   - {fileID: 4994931365301310}
@@ -943,6 +943,11 @@ MonoBehaviour:
     type: 2}
   weaponPrefab: {fileID: 129996, guid: cdaecba0ed22cdc42bfd1b794a751fe3, type: 2}
   targetObj: {fileID: 0}
+  attackSound: {fileID: 0}
+  hitSounds:
+  - {fileID: 8300000, guid: 0805de7e4fb0f4d03a30ae90e7c64311, type: 3}
+  - {fileID: 8300000, guid: 34aca9e3f1ade4802b9062b1380aa523, type: 3}
+  - {fileID: 8300000, guid: 2bc8225a23eb945578cfd49d8ba0dd67, type: 3}
 --- !u!114 &114904359701490746
 MonoBehaviour:
   m_ObjectHideFlags: 1

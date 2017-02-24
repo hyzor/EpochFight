@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Audio;
 
 public class AttackScript : MonoBehaviour
 {
@@ -24,6 +25,9 @@ public class AttackScript : MonoBehaviour
     public GameObject targetObj;
     private Animator anim;
     private Entity entity;
+
+    public AudioClip attackSound;
+    public List<AudioClip> hitSounds;
 
     // Use this for initialization
     void Start ()
@@ -69,8 +73,8 @@ public class AttackScript : MonoBehaviour
                 if (anim != null)
                 {
                     anim.speed = 1.0f / duration;
-                    anim.Play("Melee_OneHanded", 0, 0.0f);
-                    anim.Play("Melee_OneHanded", 6, 0.0f);
+                    //anim.Play("Melee_OneHanded", 0, 0.0f);
+                    //anim.Play("Melee_OneHanded", 6, 0.0f);
                     anim.SetFloat("Speed_f", 0.0f);
                     anim.SetInteger("MeleeType_int", 1);
                     anim.SetInteger("WeaponType_int", 12);
@@ -91,7 +95,10 @@ public class AttackScript : MonoBehaviour
                 }
                 break;
             }
-        }
+
+        if (attackSound != null)
+            SoundManager.instance.PlaySingleClip(attackSound);
+    }
 
     public void DoAttack()
     {
@@ -99,6 +106,11 @@ public class AttackScript : MonoBehaviour
         {
             case AttackType.MELEE_ONEHANDED:
                 // Do nothing
+                SoundManager.instance.RandomizeSfx(hitSounds.ToArray());
+                anim.SetInteger("MeleeType_int", 1);
+                anim.SetInteger("WeaponType_int", 0);
+                anim.SetInteger("Animation_int", 2);
+
                 break;
             case AttackType.RANGED_BOW:
                 if (anim != null)
@@ -118,6 +130,7 @@ public class AttackScript : MonoBehaviour
                 Projectile projectile = newProjectile.GetComponent<Projectile>();
                 projectile.srcObject = this.gameObject;
                 projectile.damage = damage;
+                projectile.hitSounds = hitSounds.ToArray();
 
                 Rigidbody rigidBody = newProjectile.GetComponent<Rigidbody>();
                 rigidBody.useGravity = false;

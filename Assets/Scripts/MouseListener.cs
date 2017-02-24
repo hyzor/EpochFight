@@ -52,7 +52,8 @@ public class MouseListener : MonoBehaviour {
 			float lerp = Mathf.PingPong (Time.time, duration) / duration;
 
 			foreach (Renderer renderer in e.entityRenderers) {
-				renderer.material.color = Color.Lerp (selectedColorStart, selectedColorEnd, lerp);
+                if (renderer != null)
+				    renderer.material.color = Color.Lerp (selectedColorStart, selectedColorEnd, lerp);
 			}
 		}
 

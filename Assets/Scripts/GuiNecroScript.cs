@@ -284,7 +284,9 @@ public class GuiNecroScript : MonoBehaviour
 
                         taskObjCollider = taskObj.GetComponent<Collider>();
                         taskObjBoxCollider = taskObj.GetComponent<BoxCollider>();
-                        taskCubeInstance.transform.localScale = taskObjCollider.bounds.size;
+
+                        if (taskObjBoxCollider != null)
+                            taskCubeInstance.transform.localScale = taskObjCollider.bounds.size;
 
                         TaskCube taskCube = taskCubeInstance.GetComponent<TaskCube>();
                         taskCube.GetComponent<Renderer>().enabled = false;

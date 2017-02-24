@@ -26,7 +26,7 @@ public class CollectTask : BaseTask
         maxResources = 5;
         collectingTime = 1;
         numResources = 0;
-        Transform canvasResourceTextTrans = GameObject.Find("Canvas").transform.FindChild("ResourceText");
+        Transform canvasResourceTextTrans = GameObject.Find("Canvas_Overlay").transform.FindChild("ResourceText");
         worker = this.gameObject.transform.parent.GetComponent<Worker>();
         resourceCanvasElement = canvasResourceTextTrans.gameObject;
 

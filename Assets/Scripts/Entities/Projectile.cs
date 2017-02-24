@@ -8,6 +8,7 @@ public class Projectile : MonoBehaviour
     public int damage = 1;
     public Vector3 dir;
     public GameObject srcObject;
+    public AudioClip[] hitSounds;
 
 	// Use this for initialization
 	void Start ()
@@ -36,6 +37,8 @@ public class Projectile : MonoBehaviour
         if (otherEntity != null)
         {
             ExecuteEvents.Execute<IEntityMessageHandler>(other.gameObject, null, (x, y) => x.ReceiveDamage(damage, srcObject));
+
+            SoundManager.instance.RandomizeSfx(hitSounds);
 
             // Kill self
             Destroy(this.gameObject);

@@ -143,7 +143,10 @@ public class AttackTask : BaseTask
                 {
                     // Is target still within range?
                     if (TargetIsWithinRange())
+                    {
+                        attackScript.DoAttack();
                         ExecuteEvents.Execute<IEntityMessageHandler>(taskTargetObj, null, (x, y) => x.ReceiveDamage(attackScript.damage, entitySrc.gameObject));
+                    }
                 }
                 else
                 {

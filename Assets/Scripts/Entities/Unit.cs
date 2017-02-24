@@ -74,8 +74,12 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
     void Update () {
         if (entity.deathTrigger && !entity.flaggedForRemoval)
         {
-            taskMgr.AbortCurrentTask();
-            navMeshAgent.Stop();
+            if (taskMgr != null)
+                taskMgr.AbortCurrentTask();
+
+            if (navMeshAgent != null)
+                navMeshAgent.Stop();
+
             OnDie();
         }
 

@@ -146,6 +146,12 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
     // Update is called once per frame
     void Update ()
     {
+        for (int i = 0; i < entityRenderers.Count; ++i)
+        {
+            if (entityRenderers[i] == null)
+                entityRenderers.RemoveAt(i);
+        }
+
         InsertStatusTextElement(statusTextIndex, curHealth + "/" + maxHealth);
 
         if (statusText != null)
