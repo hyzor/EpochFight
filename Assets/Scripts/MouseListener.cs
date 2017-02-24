@@ -82,6 +82,7 @@ public class MouseListener : MonoBehaviour {
 					directionMarker.gameObject.GetComponent<MeshRenderer>().enabled = true;
 					directionMarker.origin = FindCenterPoint(selectedEntities.ConvertAll(o=>o.gameObject).ToArray());
 					directionMarker.target = hit.point;
+					directionMarker.gameObject.GetComponent<FadeOut>().Reset();
 					Debug.Log("Left click hit " + hit.transform.name);
 				}
 			}
@@ -94,7 +95,8 @@ public class MouseListener : MonoBehaviour {
 					// TODO we are still calling it "right click" 
 					ExecuteEvents.Execute<IClickable>(hit.transform.gameObject, null, (x, y) => x.OnRightClick(hit.point));
 					DeselectAll();
-					directionMarker.gameObject.GetComponent<MeshRenderer>().enabled = false;
+					//directionMarker.gameObject.GetComponent<MeshRenderer>().enabled = false;
+				directionMarker.gameObject.GetComponent<FadeOut>().StartFade();
 				//} else {
 				//}
 			}

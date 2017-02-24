@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 33140641544862166}
   - component: {fileID: 23246230511088002}
   - component: {fileID: 114443708935751178}
+  - component: {fileID: 114704417683239804}
   m_Layer: 0
   m_Name: DirectionMarker
   m_TagString: Untagged
@@ -165,6 +166,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   origin: {x: 0, y: 0, z: 0}
   target: {x: 0, y: 0, z: 0}
+--- !u!114 &114704417683239804
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1024736398080274}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 202dac68bacdf4a8eb3fc383fc9d4570, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  alpha: 1
+  seconds: 0.92
 --- !u!135 &135311697877026454
 SphereCollider:
   m_ObjectHideFlags: 1
