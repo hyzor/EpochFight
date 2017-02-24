@@ -7,16 +7,16 @@ using UnityEngine.EventSystems;
 public class Ground : MonoBehaviour, IClickable {
     private MouseListener mouseListener;
 
-    public void OnLeftClick()
+	public void OnLeftClick(Vector3 point)
     {
         // Do nothing
     }
 
-    public void OnRightClick()
+	public void OnRightClick(Vector3 point)
     {
 		foreach(GameObject o in mouseListener.GetSelectedAlliedUnits()) {
             ExecuteEvents.Execute<ITaskManagerMessageHandler>(o, null, (x, y) => x.RequestSetTask(BaseTask.TaskType.GOTO));
-            ExecuteEvents.Execute<ITaskManagerMessageHandler>(o, null, (x, y) => x.SetTaskDestinationCoords(mouseListener.actionCoordinates));
+            ExecuteEvents.Execute<ITaskManagerMessageHandler>(o, null, (x, y) => x.SetTaskDestinationCoords(point));
         }
     }
 

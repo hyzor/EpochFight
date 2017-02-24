@@ -9,12 +9,12 @@ public class Resource : MonoBehaviour, IClickable
     private MouseListener mouseListener;
     private Entity entity;
 
-    public void OnLeftClick()
+	public void OnLeftClick(Vector3 point)
     {
         Debug.Log("Resource left clicked!");
     }
 
-    public void OnRightClick()
+	public void OnRightClick(Vector3 point)
     {
 		foreach (GameObject o in mouseListener.GetSelectedAlliedWorkerUnits()) {
             ExecuteEvents.Execute<ITaskManagerMessageHandler>(o, null, (x, y) => x.RequestSetTask(BaseTask.TaskType.COLLECT));

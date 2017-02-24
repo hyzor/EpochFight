@@ -24,12 +24,12 @@ public class Base : MonoBehaviour, IClickable
         }
 	}
 
-    public void OnLeftClick()
+	public void OnLeftClick(Vector3 point)
     {
         Debug.Log("Base left clicked!");
     }
 
-    public void OnRightClick()
+	public void OnRightClick(Vector3 point)
     {
 		GameObject[] selectedWorkers = mouseListener.GetSelectedAlliedUnits();
 

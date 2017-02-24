@@ -20,12 +20,12 @@ public class Enemy : MonoBehaviour, IClickable {
     bool pollNextPatrolWaypoint = false;
     private Entity entity;
 
-    public void OnLeftClick()
+	public void OnLeftClick(Vector3 point)
     {
         // Do nothing
     }
 
-    public void OnRightClick()
+	public void OnRightClick(Vector3 point)
     {
         // Order selected unit to attack this enemy
         GameObject[] selectedUnits = mouseListener.GetSelectedAlliedUnits();

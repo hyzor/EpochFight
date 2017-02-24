@@ -5,8 +5,6 @@ using UnityEngine.EventSystems;
 
 public class MouseListener : MonoBehaviour {
 	public float maxRaycastDist = 1000.0f;
-	public GameObject actionObj;
-	public Vector3 actionCoordinates;
 
 	private List<Entity> selectedEntities = new List<Entity>();
     private Color selectionColorCache;
@@ -59,39 +57,18 @@ public class MouseListener : MonoBehaviour {
 		}
 
         // Listen for select (left mouse button)
-        if (Input.GetMouseButtonDown(0))
-        {
-            RaycastHit hit;
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
-            if (Physics.Raycast (ray, out hit, maxRaycastDist))
-            {
-				/*foreach (Entity e in selectedEntities) {
-					Deselect(e);
-					ExecuteEvents.Execute<IClickable>(e.gameObject, null, (x, y) => x.OnLeftClick());
-				}*/
-
-				SelectUnitsAtClick(hit.point);
-
-                Debug.Log("Left click hit " + hit.transform.name);
-            }
-        }
-
-        // Listen for action (right mouse button)
-        else if (Input.GetMouseButtonDown(1))
-        {
-            RaycastHit hit;
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            Debug.Log("Right click on " + actionCoordinates);
-
-            if (Physics.Raycast(ray, out hit, maxRaycastDist))
-            {
-                Debug.Log("Right click hit " + hit.transform.name);
-                actionObj = hit.transform.gameObject;
-                actionCoordinates = hit.point;
-
-                ExecuteEvents.Execute<IClickable>(actionObj, null, (x, y) => x.OnRightClick());
-            }
+        if (Input.GetMouseButtonDown(0)) {
+			RaycastHit hit;
+			Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
+			if (Physics.Raycast (ray, out hit, maxRaycastDist)) {
+				if (selectedEntities.Count > 0) {
+					// TODO we are still calling it "right click" 
+					ExecuteEvents.Execute<IClickable>(hit.transform.gameObject, null, (x, y) => x.OnRightClick(hit.point));
+				} else {
+					SelectUnitsAtClick (hit.point);
+					Debug.Log ("Left click hit " + hit.transform.name);
+				}
+			}
         }
 	}
 
