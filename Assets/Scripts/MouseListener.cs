@@ -80,7 +80,6 @@ public class MouseListener : MonoBehaviour {
 				} else {
 					SelectUnitsAtClick(hit.point);
 					directionMarker.gameObject.GetComponent<MeshRenderer>().enabled = true;
-					directionMarker.origin = FindCenterPoint(selectedEntities.ConvertAll(o=>o.gameObject).ToArray());
 					directionMarker.target = hit.point;
 					directionMarker.gameObject.GetComponent<FadeOut>().Reset();
 					Debug.Log("Left click hit " + hit.transform.name);
@@ -91,14 +90,11 @@ public class MouseListener : MonoBehaviour {
 			RaycastHit hit;
 			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 			if (Physics.Raycast (ray, out hit, maxRaycastDist)) {
-				//if (selectedEntities.Count > 0) {
-					// TODO we are still calling it "right click" 
-					ExecuteEvents.Execute<IClickable>(hit.transform.gameObject, null, (x, y) => x.OnRightClick(hit.point));
-					DeselectAll();
-					//directionMarker.gameObject.GetComponent<MeshRenderer>().enabled = false;
+				// TODO we are still calling it "right click" 
+				ExecuteEvents.Execute<IClickable>(hit.transform.gameObject, null, (x, y) => x.OnRightClick(hit.point));
+				DeselectAll();
+				//directionMarker.gameObject.GetComponent<MeshRenderer>().enabled = false;
 				directionMarker.gameObject.GetComponent<FadeOut>().StartFade();
-				//} else {
-				//}
 			}
 		}
 
@@ -107,6 +103,7 @@ public class MouseListener : MonoBehaviour {
 			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 			if (Physics.Raycast (ray, out hit, maxRaycastDist)) {
 				directionMarker.target = hit.point;
+				directionMarker.origin = FindCenterPoint(selectedEntities.ConvertAll(o=>o.gameObject).ToArray());
 			}
 		}
 	}
