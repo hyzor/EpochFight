@@ -150,7 +150,11 @@ public class AttackTask : BaseTask
                 }
                 else
                 {
-                    attackScript.DoAttack();
+                    // Is target still within range?
+                    if (TargetIsWithinRange())
+                    {
+                        attackScript.DoAttack();
+                    }
                 }
 
                 lastAttackFinishedTime = Time.time;
