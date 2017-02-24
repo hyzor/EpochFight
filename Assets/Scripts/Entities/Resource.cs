@@ -9,20 +9,17 @@ public class Resource : MonoBehaviour, IClickable
     private MouseListener mouseListener;
     private Entity entity;
 
-    public void OnLeftClick()
+	public void OnLeftClick(Vector3 point)
     {
         Debug.Log("Resource left clicked!");
     }
 
-    public void OnRightClick()
+	public void OnRightClick(Vector3 point)
     {
-        GameObject selectedWorker = mouseListener.GetSelectedAlliedWorker();
-
-        if (selectedWorker != null)
-        {
-            ExecuteEvents.Execute<ITaskManagerMessageHandler>(selectedWorker, null, (x, y) => x.RequestSetTask(BaseTask.TaskType.COLLECT));
-            ExecuteEvents.Execute<ITaskManagerMessageHandler>(selectedWorker, null, (x, y) => x.SetTaskDestinationCoords(this.gameObject.transform.position));
-            ExecuteEvents.Execute<ITaskManagerMessageHandler>(selectedWorker, null, (x, y) => x.SetTaskDestinationObj(this.gameObject));
+		foreach (GameObject o in mouseListener.GetSelectedAlliedWorkerUnits()) {
+            ExecuteEvents.Execute<ITaskManagerMessageHandler>(o, null, (x, y) => x.RequestSetTask(BaseTask.TaskType.COLLECT));
+            ExecuteEvents.Execute<ITaskManagerMessageHandler>(o, null, (x, y) => x.SetTaskDestinationCoords(this.gameObject.transform.position));
+            ExecuteEvents.Execute<ITaskManagerMessageHandler>(o, null, (x, y) => x.SetTaskDestinationObj(this.gameObject));
             Debug.Log("Resource right clicked!");
         }
     }

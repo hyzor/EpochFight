@@ -204,12 +204,12 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
         return taskMgr.TaskIsActive();
     }
 
-    public void OnLeftClick()
+	public void OnLeftClick(Vector3 point)
     {
         //Debug.Log("Unit left clicked!");
     }
 
-    public void OnRightClick()
+	public void OnRightClick(Vector3 point)
     {
         //Debug.Log("Unit right clicked!");
     }

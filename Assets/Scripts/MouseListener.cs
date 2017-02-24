@@ -4,142 +4,161 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class MouseListener : MonoBehaviour {
-    public GameObject selectedObj;
-    private Entity selectedEntity;
-    public GameObject actionObj;
-    public Vector3 actionCoordinates;
+	public float maxRaycastDist = 1000.0f;
+
+	private List<Entity> selectedEntities = new List<Entity>();
     private Color selectionColorCache;
     private GameObject selectedCanvasElement;
-    public float maxRaycastDist = 1000.0f;
-
-    private Renderer selectedObjRenderer;
-
+	private GameObject selectionSphere;
     private Color selectedColorStart = Color.white;
     private Color selectedColorEnd = Color.black;
     private float duration = 1.0f;
+
+	private StretchBetween directionMarker;
 
     // Use this for initialization
     void Start ()
     {
         GameObject canvasOverlayObj = GameObject.Find("Canvas_Overlay");
+		selectionSphere = transform.Find("SelectionSize").gameObject;
 
-        if (canvasOverlayObj != null)
-        {
+        if (canvasOverlayObj != null) {
             selectedCanvasElement = canvasOverlayObj.transform.GetChild(1).gameObject;
         }
+
+		directionMarker = transform.Find("DirectionMarker").GetComponent<StretchBetween>();
     }
 
-    // Update is called once per frame
-    void Update ()
-    {
+	private void SelectUnitsAtClick(Vector3 point) {
+		DeselectAll();
 
-        if (selectedEntity != null)
-        {
-            float lerp = Mathf.PingPong(Time.time, duration) / duration;
+		Collider[] hits = Physics.OverlapSphere(point, selectionSphere.GetComponent<SphereCollider>().radius);
+		foreach (Collider c in hits) {
+			if (c.gameObject.GetComponent<Entity>() != null && c.gameObject.GetComponent<Enemy>() == null && c.gameObject.GetComponent<Unit>() != null) {
+				Select(c.gameObject.GetComponent<Entity>());
+			}
+		}
 
-            foreach(Renderer renderer in selectedEntity.entityRenderers)
-            {
-                renderer.material.color = Color.Lerp(selectedColorStart, selectedColorEnd, lerp);
-            }
-        }
-
-        // Listen for select (left mouse button)
-        if (Input.GetMouseButtonDown(0))
-        {
-            RaycastHit hit;
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
-            if (Physics.Raycast (ray, out hit, maxRaycastDist))
-            {
-                Debug.Log("Left click hit " + hit.transform.name);
-                GameObject selection = hit.transform.gameObject;
-
-                if (selectedObj != null && selectedObj != selection)
-                {
-                    Deselect(selectedObj);
-                }
-
-                // Ingore ground (TODO: also ignore environment)
-                if (hit.transform.gameObject.GetComponent<Ground>() != null)
-                    return;
-
-                Select(hit.transform.gameObject);
-
-                ExecuteEvents.Execute<IClickable>(selectedObj, null, (x, y) => x.OnLeftClick());
-            }
-        }
-
-        // Listen for action (right mouse button)
-        else if (Input.GetMouseButtonDown(1))
-        {
-            RaycastHit hit;
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            Debug.Log("Right click on " + actionCoordinates);
-
-            if (Physics.Raycast(ray, out hit, maxRaycastDist))
-            {
-                Debug.Log("Right click hit " + hit.transform.name);
-                actionObj = hit.transform.gameObject;
-                actionCoordinates = hit.point;
-
-                ExecuteEvents.Execute<IClickable>(actionObj, null, (x, y) => x.OnRightClick());
-            }
-        }
+		if (selectedCanvasElement != null) {
+			ExecuteEvents.Execute<ICanvasMessageHandler>(selectedCanvasElement, null, 
+				(x, y) => x.SetComponentText ("Selected: " + selectedEntities.Count.ToString()));
+		}
 	}
 
-    public GameObject GetSelectedAlliedWorker()
-    {
-        if (selectedObj != null && selectedObj.GetComponent<Worker>() != null)
-        {
-            if (selectedObj.GetComponent<Enemy>() == null)
-            {
-                return selectedObj;
-            }
-        }
+	private Vector3 FindCenterPoint(GameObject[] gos) {
+		if (gos.Length == 0) {
+			return Vector3.zero;
+		}
+		if (gos.Length == 1) {
+			return gos [0].transform.position;
+		}
+		Bounds bounds = new Bounds(gos[0].transform.position, Vector3.zero);
+		for (int i = 1; i < gos.Length; i++) {
+			bounds.Encapsulate(gos[i].transform.position); 
+		}
+		return bounds.center;
+	}
 
-        return null;
+    void Update() {
+		// remove destroyed objects!
+		selectedEntities.RemoveAll(o => o == null);
+
+		// flash selected units
+		foreach (Entity e in selectedEntities) {
+			float lerp = Mathf.PingPong (Time.time, duration) / duration;
+
+			foreach (Renderer renderer in e.entityRenderers) {
+				renderer.material.color = Color.Lerp (selectedColorStart, selectedColorEnd, lerp);
+			}
+		}
+			
+        if (Input.GetMouseButtonDown(0)) {
+			RaycastHit hit;
+			Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
+			if (Physics.Raycast (ray, out hit, maxRaycastDist)) {
+				if (selectedEntities.Count > 0) {
+				} else {
+					SelectUnitsAtClick(hit.point);
+					directionMarker.gameObject.GetComponent<MeshRenderer>().enabled = true;
+					directionMarker.target = hit.point;
+					directionMarker.gameObject.GetComponent<FadeOut>().Reset();
+					Debug.Log("Left click hit " + hit.transform.name);
+				}
+			}
+        }
+		if (Input.GetMouseButtonUp(0)) {
+			RaycastHit hit;
+			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+			if (Physics.Raycast (ray, out hit, maxRaycastDist)) {
+				// TODO we are still calling it "right click" 
+				ExecuteEvents.Execute<IClickable>(hit.transform.gameObject, null, (x, y) => x.OnRightClick(hit.point));
+				DeselectAll();
+				//directionMarker.gameObject.GetComponent<MeshRenderer>().enabled = false;
+				directionMarker.gameObject.GetComponent<FadeOut>().StartFade();
+			}
+		}
+
+		if (selectedEntities.Count > 0) {
+			RaycastHit hit;
+			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+			if (Physics.Raycast (ray, out hit, maxRaycastDist)) {
+				directionMarker.target = hit.point;
+				directionMarker.origin = FindCenterPoint(selectedEntities.ConvertAll(o=>o.gameObject).ToArray());
+			}
+		}
+	}
+
+    private void Select(Entity obj)
+    {
+		selectedEntities.Add(obj);
     }
 
-    public GameObject GetSelectedAlliedUnit()
-    {
-        if (selectedObj != null)
-        {
-            if (selectedObj.GetComponent<Unit>() != null && selectedObj.GetComponent<Enemy>() == null)
-            {
-                return selectedObj;
-            }
-        }
+	private void DeselectAll() {
+		foreach (Entity e in selectedEntities) {
+			for (int i = 0; i < e.entityRenderers.Count; ++i)
+			{
+				e.entityRenderers[i].material.color = Color.white;
+			}
+		}
+		selectedEntities.Clear();
+		ExecuteEvents.Execute<ICanvasMessageHandler> (selectedCanvasElement, null, (x, y) => x.SetComponentText ("Selected: "));
+	}
 
-        return null;
+    private void Deselect(Entity obj)
+    {
+		foreach (Entity e in selectedEntities) {
+			if (e == obj) {
+				for (int i = 0; i < e.entityRenderers.Count; ++i)
+				{
+					e.entityRenderers[i].material.color = Color.white;
+				}
+			}
+		}
+
+		if (selectedCanvasElement != null) {
+			ExecuteEvents.Execute<ICanvasMessageHandler> (selectedCanvasElement, null, (x, y) => x.SetComponentText ("Selected: "));
+		}
     }
 
-    private void Select(GameObject obj)
-    {
-        if (selectedObj == obj)
-        {
-            Deselect(selectedObj);
-            return;
-        }
 
-        selectedObj = obj;
-        selectedEntity = selectedObj.GetComponent<Entity>();
+	public GameObject[] GetSelectedAlliedWorkerUnits() {
+		List<GameObject> ret = new List<GameObject>();
+		foreach (Entity e in selectedEntities) {
+			if (e.gameObject.GetComponent<Worker>() != null && e.gameObject.GetComponent<Enemy>() == null) {
+				ret.Add(e.gameObject);
+			}
+		}
+		return ret.ToArray();
+	}
 
-        if (selectedCanvasElement != null)
-            ExecuteEvents.Execute<ICanvasMessageHandler>(selectedCanvasElement, null, (x, y) => x.SetComponentText("Selected: " + selectedObj.name));
-    }
-
-    private void Deselect(GameObject obj)
-    {
-        for (int i = 0; i < selectedEntity.entityRenderers.Count; ++i)
-        {
-            selectedEntity.entityRenderers[i].material.color = Color.white;
-        }
-
-        selectedObj = null;
-        selectedEntity = null;
-        selectedObjRenderer = null;
-
-        if (selectedCanvasElement != null)
-            ExecuteEvents.Execute<ICanvasMessageHandler>(selectedCanvasElement, null, (x, y) => x.SetComponentText("Selected: "));
-    }
+	public GameObject[] GetSelectedAlliedUnits()
+	{
+		List<GameObject> ret = new List<GameObject>();
+		foreach (Entity e in selectedEntities) {
+			if (e.gameObject.GetComponent<Unit>() != null && e.gameObject.GetComponent<Enemy>() == null) {
+				ret.Add(e.gameObject);
+			}
+		}
+		return ret.ToArray();
+	}
 }

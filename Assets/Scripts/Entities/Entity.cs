@@ -27,7 +27,7 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
     private Collider myCollider;
     private AttackScript attackScript;
 
-    public List<Renderer> entityRenderers;
+	public List<Renderer> entityRenderers = new List<Renderer>();
 
     public void ReceiveDamage(int dmg, GameObject src)
     {
@@ -59,7 +59,8 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
 
             foreach (Renderer renderer in entityRenderers)
             {
-                renderer.material.color = Color.Lerp(dmgColorStart, dmgColorEnd, lerp);
+                if (renderer != null)
+                    renderer.material.color = Color.Lerp(dmgColorStart, dmgColorEnd, lerp);
             }
             
             yield return null;
@@ -67,7 +68,8 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
 
         foreach (Renderer renderer in entityRenderers)
         {
-            renderer.material.color = dmgColorStart;
+            if (renderer != null)
+                renderer.material.color = dmgColorStart;
         }
         
         yield return null;
@@ -82,9 +84,7 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
         Renderer[] renderersFound = this.gameObject.GetComponentsInChildren<Renderer>();
 
         foreach (Renderer renderer in renderersFound)
-        {
             entityRenderers.Add(renderer);
-        }
         
         unitComponent = this.gameObject.GetComponent<Unit>();
 
@@ -104,7 +104,8 @@ public class Entity : MonoBehaviour, IEntityMessageHandler
 
             foreach (Renderer renderer in entityRenderers)
             {
-                renderer.material.color = Color.Lerp(dmgColorStart, dmgColorEnd, lerp);
+                if (renderer != null)
+                    renderer.material.color = Color.Lerp(dmgColorStart, dmgColorEnd, lerp);
             }
             
             yield return null;

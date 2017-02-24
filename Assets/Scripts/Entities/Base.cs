@@ -24,24 +24,23 @@ public class Base : MonoBehaviour, IClickable
         }
 	}
 
-    public void OnLeftClick()
+	public void OnLeftClick(Vector3 point)
     {
         Debug.Log("Base left clicked!");
     }
 
-    public void OnRightClick()
+	public void OnRightClick(Vector3 point)
     {
-        GameObject selectedWorker = mouseListener.GetSelectedAlliedWorker();
+		GameObject[] selectedWorkers = mouseListener.GetSelectedAlliedUnits();
 
-        if (selectedWorker != null)
-        {
-            Worker workerComponent = selectedWorker.GetComponent<Worker>();
+		foreach (GameObject o in selectedWorkers) {
+            Worker workerComponent = o.GetComponent<Worker>();
 
             if (workerComponent.numResources > 0)
             {
-                ExecuteEvents.Execute<ITaskManagerMessageHandler>(selectedWorker, null, (x, y) => x.RequestSetTask(BaseTask.TaskType.COLLECT));
-                ExecuteEvents.Execute<ITaskManagerMessageHandler>(selectedWorker, null, (x, y) => x.SetTaskDestinationCoords(this.gameObject.transform.position));
-                ExecuteEvents.Execute<ITaskManagerMessageHandler>(selectedWorker, null, (x, y) => x.SetTaskDestinationObj(this.gameObject));
+                ExecuteEvents.Execute<ITaskManagerMessageHandler>(o, null, (x, y) => x.RequestSetTask(BaseTask.TaskType.COLLECT));
+                ExecuteEvents.Execute<ITaskManagerMessageHandler>(o, null, (x, y) => x.SetTaskDestinationCoords(this.gameObject.transform.position));
+                ExecuteEvents.Execute<ITaskManagerMessageHandler>(o, null, (x, y) => x.SetTaskDestinationObj(this.gameObject));
             }
         }
 

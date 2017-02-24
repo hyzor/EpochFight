@@ -20,21 +20,16 @@ public class Enemy : MonoBehaviour, IClickable {
     bool pollNextPatrolWaypoint = false;
     private Entity entity;
 
-    public void OnLeftClick()
+	public void OnLeftClick(Vector3 point)
     {
         // Do nothing
     }
 
-    public void OnRightClick()
-    {
-        // Order selected unit to attack this enemy
-        GameObject selectedUnit = mouseListener.GetSelectedAlliedUnit();
-
-        if (selectedUnit != null)
-        {
-            ExecuteEvents.Execute<ITaskManagerMessageHandler>(selectedUnit, null, (x, y) => x.RequestSetTask(BaseTask.TaskType.ATTACK));
-            ExecuteEvents.Execute<ITaskManagerMessageHandler>(selectedUnit, null, (x, y) => x.SetTaskDestinationCoords(gameObject.transform.position));
-            ExecuteEvents.Execute<ITaskManagerMessageHandler>(selectedUnit, null, (x, y) => x.SetTaskDestinationObj(gameObject));
+	public void OnRightClick(Vector3 point) {
+		foreach (GameObject o in mouseListener.GetSelectedAlliedUnits()) {
+            ExecuteEvents.Execute<ITaskManagerMessageHandler>(o, null, (x, y) => x.RequestSetTask(BaseTask.TaskType.ATTACK));
+            ExecuteEvents.Execute<ITaskManagerMessageHandler>(o, null, (x, y) => x.SetTaskDestinationCoords(gameObject.transform.position));
+            ExecuteEvents.Execute<ITaskManagerMessageHandler>(o, null, (x, y) => x.SetTaskDestinationObj(gameObject));
             Debug.Log("Enemy right clicked!");
         }
     }

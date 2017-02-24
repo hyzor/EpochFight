@@ -5,6 +5,6 @@ using UnityEngine.EventSystems;
 
 public interface IClickable : IEventSystemHandler
 {
-    void OnLeftClick();
-    void OnRightClick();
+	void OnLeftClick(Vector3 point);
+    void OnRightClick(Vector3 point);
 }
