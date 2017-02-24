@@ -56,7 +56,6 @@ public class MouseListener : MonoBehaviour {
 			}
 		}
 
-        // Listen for select (left mouse button)
         if (Input.GetMouseButtonDown(0)) {
 			RaycastHit hit;
 			Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
@@ -64,6 +63,7 @@ public class MouseListener : MonoBehaviour {
 				if (selectedEntities.Count > 0) {
 					// TODO we are still calling it "right click" 
 					ExecuteEvents.Execute<IClickable>(hit.transform.gameObject, null, (x, y) => x.OnRightClick(hit.point));
+					DeselectAll();
 				} else {
 					SelectUnitsAtClick (hit.point);
 					Debug.Log ("Left click hit " + hit.transform.name);
@@ -85,6 +85,7 @@ public class MouseListener : MonoBehaviour {
 			}
 		}
 		selectedEntities.Clear();
+		ExecuteEvents.Execute<ICanvasMessageHandler> (selectedCanvasElement, null, (x, y) => x.SetComponentText ("Selected: "));
 	}
 
     private void Deselect(Entity obj)
@@ -98,8 +99,9 @@ public class MouseListener : MonoBehaviour {
 			}
 		}
 
-        if (selectedCanvasElement != null)
-            ExecuteEvents.Execute<ICanvasMessageHandler>(selectedCanvasElement, null, (x, y) => x.SetComponentText("Selected: "));
+		if (selectedCanvasElement != null) {
+			ExecuteEvents.Execute<ICanvasMessageHandler> (selectedCanvasElement, null, (x, y) => x.SetComponentText ("Selected: "));
+		}
     }
 
 

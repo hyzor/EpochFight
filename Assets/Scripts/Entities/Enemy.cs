@@ -25,12 +25,8 @@ public class Enemy : MonoBehaviour, IClickable {
         // Do nothing
     }
 
-	public void OnRightClick(Vector3 point)
-    {
-        // Order selected unit to attack this enemy
-        GameObject[] selectedUnits = mouseListener.GetSelectedAlliedUnits();
-
-		foreach (GameObject o in selectedUnits) {
+	public void OnRightClick(Vector3 point) {
+		foreach (GameObject o in mouseListener.GetSelectedAlliedUnits()) {
             ExecuteEvents.Execute<ITaskManagerMessageHandler>(o, null, (x, y) => x.RequestSetTask(BaseTask.TaskType.ATTACK));
             ExecuteEvents.Execute<ITaskManagerMessageHandler>(o, null, (x, y) => x.SetTaskDestinationCoords(gameObject.transform.position));
             ExecuteEvents.Execute<ITaskManagerMessageHandler>(o, null, (x, y) => x.SetTaskDestinationObj(gameObject));
