@@ -13,7 +13,9 @@ public class FadeOut : MonoBehaviour {
 	}
 
 	public void Update () {
-		alpha -= Time.deltaTime / seconds;
+		if (fade) {
+			alpha -= Time.deltaTime / seconds;
+		}
 		Color c = GetComponent<MeshRenderer>().material.color;
 		GetComponent<MeshRenderer>().material.color = new Color(c.r, c.g, c.b, alpha);
 	}
