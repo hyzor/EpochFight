@@ -951,7 +951,7 @@ MonoBehaviour:
   offHandType: 0
   isRanged: 0
   projectilePrefab: {fileID: 0}
-  weaponPrefab: {fileID: 100000, guid: 312c3394311147a47aa351c583cba5b0, type: 3}
+  weaponPrefab: {fileID: 108826, guid: 20eaf00449b515a41b33894ca34a3e25, type: 2}
   offHandPrefab: {fileID: 0}
   targetObj: {fileID: 0}
   attackSounds: []
