@@ -166,6 +166,12 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
                         anim.SetInteger("WeaponType_int", 0);
                         anim.SetInteger("Animation_int", 2);
                     }
+                    else if (attackScript.attackType == AttackScript.AttackType.MELEE_TWOHANDED)
+                    {
+                        anim.SetInteger("MeleeType_int", 2);
+                        anim.SetInteger("WeaponType_int", 0);
+                        anim.SetInteger("Animation_int", 2);
+                    }
                     else if (attackScript.attackType == AttackScript.AttackType.RANGED_BOW)
                     {
                         anim.SetInteger("MeleeType_int", 1);
