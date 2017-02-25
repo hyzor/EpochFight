@@ -436,7 +436,7 @@ Transform:
   m_GameObject: {fileID: 1162381232066580}
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
   m_LocalPosition: {x: 0, y: -3.2358155, z: -0.0847168}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4372623121216948}
   m_RootOrder: 3
@@ -893,7 +893,7 @@ MonoBehaviour:
   projectilePrefab: {fileID: 0}
   weaponPrefab: {fileID: 114046, guid: 8e6e95740e5530f45961c6d1f4c65422, type: 2}
   targetObj: {fileID: 0}
-  attackSound: {fileID: 0}
+  attackSounds: []
   hitSounds:
   - {fileID: 8300000, guid: 0ecf18972377e4652ab7377a0993f14a, type: 3}
   - {fileID: 8300000, guid: 07c38e0499aea4acd81b44991c0e4d07, type: 3}
@@ -975,7 +975,7 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 20
+  m_Radius: 25
   m_Center: {x: 0, y: 1.5, z: 0}
 --- !u!137 &137689718415757902
 SkinnedMeshRenderer:

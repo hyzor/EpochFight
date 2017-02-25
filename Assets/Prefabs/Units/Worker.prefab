@@ -913,7 +913,7 @@ MonoBehaviour:
   projectilePrefab: {fileID: 0}
   weaponPrefab: {fileID: 0}
   targetObj: {fileID: 0}
-  attackSound: {fileID: 0}
+  attackSounds: []
   hitSounds: []
 --- !u!114 &114244463293643076
 MonoBehaviour:

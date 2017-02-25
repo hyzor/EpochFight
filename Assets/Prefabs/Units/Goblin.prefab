@@ -898,6 +898,7 @@ MonoBehaviour:
   curState: 0
   statusTextIndex: 1
   deathSound: {fileID: 8300000, guid: 67960e70d9aaf65459f403bc92ee53a1, type: 3}
+  hurtSounds: []
   type: 1
 --- !u!114 &114450013781855496
 MonoBehaviour:
@@ -954,8 +955,9 @@ MonoBehaviour:
   projectilePrefab: {fileID: 0}
   weaponPrefab: {fileID: 191736, guid: 6f7c858d0da9d054e80d6c60306d3cfa, type: 2}
   targetObj: {fileID: 0}
-  attackSound: {fileID: 0}
-  hitSounds: []
+  attackSounds: []
+  hitSounds:
+  - {fileID: 8300000, guid: c5793a26eccf14d41823331074172019, type: 3}
 --- !u!135 &135119680762659402
 SphereCollider:
   m_ObjectHideFlags: 1
