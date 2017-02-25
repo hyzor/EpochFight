@@ -26,8 +26,8 @@ public class AttackScript : MonoBehaviour
     private Animator anim;
     private Entity entity;
 
-    public AudioClip attackSound;
-    public List<AudioClip> hitSounds;
+    public List<AudioClip> attackSounds = new List<AudioClip>();
+    public List<AudioClip> hitSounds = new List<AudioClip>();
 
     // Use this for initialization
     void Start ()
@@ -72,6 +72,9 @@ public class AttackScript : MonoBehaviour
             case AttackType.MELEE_ONEHANDED:
                 if (anim != null)
                 {
+                    if (attackSounds.Count > 0)
+                        SoundManager.instance.RandomizeSfx(attackSounds.ToArray());
+
                     anim.speed = 1.0f / duration;
                     //anim.Play("Melee_OneHanded", 0, 0.0f);
                     //anim.Play("Melee_OneHanded", 6, 0.0f);
@@ -95,9 +98,6 @@ public class AttackScript : MonoBehaviour
                 }
                 break;
             }
-
-        if (attackSound != null)
-            SoundManager.instance.PlaySingleClip(attackSound);
     }
 
     public void DoAttack()
@@ -105,8 +105,10 @@ public class AttackScript : MonoBehaviour
         switch (attackType)
         {
             case AttackType.MELEE_ONEHANDED:
-                // Do nothing
-                SoundManager.instance.RandomizeSfx(hitSounds.ToArray());
+
+                if (hitSounds.Count > 0)
+                    SoundManager.instance.RandomizeSfx(hitSounds.ToArray());
+
                 anim.SetInteger("MeleeType_int", 1);
                 anim.SetInteger("WeaponType_int", 0);
                 anim.SetInteger("Animation_int", 2);
@@ -118,6 +120,9 @@ public class AttackScript : MonoBehaviour
                     //anim.Play("Bow_Idle", 6, 0.0f);
                     //anim.SetBool("Shoot_b", false);
                 }
+
+                if (attackSounds.Count > 0)
+                    SoundManager.instance.RandomizeSfx(attackSounds.ToArray());
 
                 GameObject newProjectile = Instantiate(projectilePrefab, this.gameObject.transform.position, Quaternion.identity);
 

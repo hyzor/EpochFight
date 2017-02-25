@@ -16,6 +16,12 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
         DEAD = 4
     }
 
+    public enum Type
+    {
+        HUMANOID = 1,
+        ANIMAL = 2
+    }
+
     private UnitTaskManager taskMgr;
     private NavMeshAgent navMeshAgent;
     private Animator anim;
@@ -25,6 +31,11 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
     private AttackScript attackScript;
     private DetectionCollider detCol;
     private bool isPlayerUnit;
+
+    public AudioClip deathSound;
+    public List<AudioClip> hurtSounds = new List<AudioClip>();
+
+    public Type type;
 
 	// Use this for initialization
 	void Start () {
@@ -51,6 +62,9 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
     {
         entity.isAlive = false;
 
+        if (deathSound != null)
+            SoundManager.instance.PlaySingleClip(deathSound);
+
         // Begin death animation
         anim.SetBool("Death_b", true);
         anim.SetInteger("DeathType_int", 1); // Play "Death_01" animation
@@ -72,13 +86,13 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
 
     // Update is called once per frame
     void Update () {
-        if (entity.deathTrigger && !entity.flaggedForRemoval)
+        if (entity.isAlive && entity.deathTrigger && !entity.flaggedForRemoval)
         {
             if (taskMgr != null)
                 taskMgr.AbortCurrentTask();
 
             if (navMeshAgent != null)
-                navMeshAgent.Stop();
+                OrderUnitStop();
 
             OnDie();
         }
@@ -117,26 +131,29 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
             anim.SetFloat("Speed_f", 0.0f);
             anim.speed = 1.0f;
 
-            if (attackScript != null)
+            if (type == Type.HUMANOID)
             {
-                if (attackScript.attackType == AttackScript.AttackType.MELEE_ONEHANDED)
+                if (attackScript != null)
+                {
+                    if (attackScript.attackType == AttackScript.AttackType.MELEE_ONEHANDED)
+                    {
+                        anim.SetInteger("MeleeType_int", 1);
+                        anim.SetInteger("WeaponType_int", 0);
+                        anim.SetInteger("Animation_int", 2);
+                    }
+                    else if (attackScript.attackType == AttackScript.AttackType.RANGED_BOW)
+                    {
+                        anim.SetInteger("MeleeType_int", 1);
+                        anim.SetInteger("WeaponType_int", 11);
+                        anim.SetInteger("Animation_int", 0);
+                    }
+                }
+                else
                 {
                     anim.SetInteger("MeleeType_int", 1);
                     anim.SetInteger("WeaponType_int", 0);
                     anim.SetInteger("Animation_int", 2);
                 }
-                else if (attackScript.attackType == AttackScript.AttackType.RANGED_BOW)
-                {
-                    anim.SetInteger("MeleeType_int", 1);
-                    anim.SetInteger("WeaponType_int", 11);
-                    anim.SetInteger("Animation_int", 0);
-                }
-            }
-            else
-            {
-                anim.SetInteger("MeleeType_int", 1);
-                anim.SetInteger("WeaponType_int", 0);
-                anim.SetInteger("Animation_int", 2);
             }
         }
         else if (curState == State.TRAVELING)
@@ -144,18 +161,27 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
             entity.InsertStatusTextElement(statusTextIndex, " (Traveling)");
             anim.speed = 1.0f;
             anim.SetFloat("Speed_f", 1.0f);
-            anim.SetInteger("MeleeType_int", 12);
-            anim.SetInteger("WeaponType_int", 12);
-            anim.SetInteger("Animation_int", 0);
-            anim.SetBool("Shoot_b", false);
+
+            if (type == Type.HUMANOID)
+            {
+                anim.SetInteger("MeleeType_int", 12);
+                anim.SetInteger("WeaponType_int", 12);
+                anim.SetInteger("Animation_int", 0);
+                anim.SetBool("Shoot_b", false);
+            }
         }
         else if (curState == State.WORKING)
         {
             entity.InsertStatusTextElement(statusTextIndex, " (Working)");
+            anim.speed = 1.0f;
             anim.SetFloat("Speed_f", 0.0f);
-            anim.SetInteger("MeleeType_int", 1);
-            anim.SetInteger("WeaponType_int", 12);
-            anim.SetInteger("Animation_int", 0);
+
+            if (type == Type.HUMANOID)
+            {
+                anim.SetInteger("MeleeType_int", 1);
+                anim.SetInteger("WeaponType_int", 12);
+                anim.SetInteger("Animation_int", 0);
+            }
         }
         else if (curState == State.ATTACKING)
         {
@@ -164,18 +190,27 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
         else if (curState == State.DEAD)
         {
             entity.InsertStatusTextElement(statusTextIndex, " (Dead)");
+            anim.speed = 1.0f;
             anim.SetFloat("Speed_f", 0.0f);
-            anim.SetInteger("MeleeType_int", 1);
-            anim.SetInteger("WeaponType_int", 0);
-            anim.SetInteger("Animation_int", 0);
-            anim.SetBool("Shoot_b", false);
+
+            if (type == Type.HUMANOID)
+            {
+                anim.SetInteger("MeleeType_int", 1);
+                anim.SetInteger("WeaponType_int", 0);
+                anim.SetInteger("Animation_int", 0);
+                anim.SetBool("Shoot_b", false);
+            }
         }
         else
         {
             anim.SetFloat("Speed_f", 0.0f);
-            anim.SetInteger("MeleeType_int", 1);
-            anim.SetInteger("WeaponType_int", 0);
-            anim.SetInteger("Animation_int", 0);
+
+            if (type == Type.HUMANOID)
+            {
+                anim.SetInteger("MeleeType_int", 1);
+                anim.SetInteger("WeaponType_int", 0);
+                anim.SetInteger("Animation_int", 0);
+            }
         }
     }
 
@@ -186,9 +221,18 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
 
     public void OnReceiveDamage(GameObject src)
     {
+        if (hurtSounds.Count > 0)
+            SoundManager.instance.RandomizeSfx(hurtSounds.ToArray());
+
         // Do not attack back if we are already attacking something or traveling somewhere
         if (curState != State.ATTACKING && curState != State.TRAVELING)
         {
+            BaseTask attackTask =
+                Array.Find<BaseTask>(taskMgr.tasksAvailable, element => element.taskType == BaseTask.TaskType.ATTACK);
+
+            if (attackTask == null)
+                return;
+
             ExecuteEvents.Execute<ITaskManagerMessageHandler>(this.gameObject, null, (x, y) => x.RequestSetTask(BaseTask.TaskType.ATTACK));
             ExecuteEvents.Execute<ITaskManagerMessageHandler>(this.gameObject, null, (x, y) => x.SetTaskDestinationCoords(src.transform.position));
             ExecuteEvents.Execute<ITaskManagerMessageHandler>(this.gameObject, null, (x, y) => x.SetTaskDestinationObj(src));
@@ -245,6 +289,12 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
 
     public bool FindTargetAndAttack()
     {
+        BaseTask attackTask = 
+            Array.Find<BaseTask>(taskMgr.tasksAvailable, element => element.taskType == BaseTask.TaskType.ATTACK);
+
+        if (attackTask == null)
+            return false;
+
         GameObject targetObj = null;
 
         DetectionCollider.ObjTypes firstPrio;

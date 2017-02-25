@@ -959,6 +959,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   curState: 0
   statusTextIndex: 1
+  deathSound: {fileID: 8300000, guid: f74d6e8b161558e48a782df0fabcc38f, type: 3}
+  hurtSounds:
+  - {fileID: 8300000, guid: 580a8024153ad8641835ce81527c88ce, type: 3}
+  - {fileID: 8300000, guid: c043903833e988b438fe5976cd9a09c6, type: 3}
+  - {fileID: 8300000, guid: 0f317f77610a9da45bd5430da80f6a9b, type: 3}
+  type: 1
 --- !u!135 &135473879638824280
 SphereCollider:
   m_ObjectHideFlags: 1

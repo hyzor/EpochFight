@@ -768,7 +768,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1153012378993422}
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 200.4, y: 0, z: -989.8}
+  m_LocalPosition: {x: 185.19788, y: 0, z: -1043.1064}
   m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_Children:
   - {fileID: 4280350587507258}
@@ -834,7 +834,7 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1.5, y: 3, z: 1.5}
+  m_Size: {x: 1, y: 3, z: 0.9}
   m_Center: {x: 0, y: 1.5, z: 0}
 --- !u!95 &95651681984441116
 Animator:
@@ -887,6 +887,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   curState: 0
   statusTextIndex: 1
+  deathSound: {fileID: 8300000, guid: 67960e70d9aaf65459f403bc92ee53a1, type: 3}
+  type: 1
 --- !u!114 &114378034091572316
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -899,13 +901,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   duration: 1
-  cooldown: 0
-  range: 1
+  cooldown: 0.1
+  range: 4
   damage: 1
   attackType: 1
   isRanged: 0
   projectilePrefab: {fileID: 0}
-  weaponPrefab: {fileID: 0}
+  weaponPrefab: {fileID: 191736, guid: 6f7c858d0da9d054e80d6c60306d3cfa, type: 2}
   targetObj: {fileID: 0}
   attackSound: {fileID: 0}
   hitSounds: []
@@ -959,7 +961,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e20dd185d82e8894d8c88fe5cee7c726, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 10
+  maxHealth: 5
   curHealth: 1
   isAlive: 1
   deathTrigger: 0
@@ -1051,12 +1053,12 @@ NavMeshAgent:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1153012378993422}
   m_Enabled: 1
-  m_Radius: 1
+  m_Radius: 0.7
   m_Speed: 15
   m_Acceleration: 15
   avoidancePriority: 50
   m_AngularSpeed: 275
-  m_StoppingDistance: 1
+  m_StoppingDistance: 4
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
