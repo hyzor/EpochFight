@@ -65,43 +65,63 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
         if (deathSound != null)
             SoundManager.instance.PlaySingleClip(deathSound);
 
-        // Begin death animation
-        anim.SetBool("Death_b", true);
-        anim.SetInteger("DeathType_int", 1); // Play "Death_01" animation
-        anim.SetFloat("Speed_f", 0.0f);
-        anim.SetInteger("MeleeType_int", 1);
-        anim.SetInteger("WeaponType_int", 0);
-        anim.SetInteger("Animation_int", 2);
-
-        // Get "Death" layer state info
-        AnimatorStateInfo animState = anim.GetCurrentAnimatorStateInfo(4);
-
-        // If the death animation has finished playing...
-        if (animState.IsName("Dead_01"))
+        if (type == Type.HUMANOID)
         {
-            // ...we flag this entity for removal
+            // Begin death animation
+            anim.SetBool("Death_b", true);
+            anim.SetInteger("DeathType_int", 1); // Play "Death_01" animation
+            anim.SetFloat("Speed_f", 0.0f);
+            anim.SetInteger("MeleeType_int", 1);
+            anim.SetInteger("WeaponType_int", 0);
+            anim.SetInteger("Animation_int", 2);
+        }
+    }
+
+    private void CheckForRemoval()
+    {
+        if (type == Type.HUMANOID)
+        {
+            // Get "Death" layer state info
+            AnimatorStateInfo animState = anim.GetCurrentAnimatorStateInfo(4);
+
+            // If the death animation has finished playing...
+            if (animState.IsName("Dead_01"))
+            {
+                // ...we flag this entity for removal
+                entity.flaggedForRemoval = true;
+            }
+        }
+        else
+        {
             entity.flaggedForRemoval = true;
         }
     }
 
     // Update is called once per frame
     void Update () {
-        if (entity.isAlive && entity.deathTrigger && !entity.flaggedForRemoval)
+        if (entity.isAlive)
         {
-            if (taskMgr != null)
-                taskMgr.AbortCurrentTask();
+            if (entity.deathTrigger && !entity.flaggedForRemoval)
+            {
+                if (taskMgr != null)
+                    taskMgr.AbortCurrentTask();
 
-            if (navMeshAgent != null)
-                OrderUnitStop();
+                if (navMeshAgent != null)
+                    OrderUnitStop();
 
-            OnDie();
+                OnDie();
+            }
+            else if (!HasTaskAssigned())
+            {
+                // Try to find an attackable target
+                if (FindTargetAndAttack())
+                    Debug.Log(this.name + " attacking!");
+            }
         }
-
-        if (entity.isAlive && !HasTaskAssigned())
+        else
         {
-            // Try to find an attackable target
-           if (FindTargetAndAttack())
-                Debug.Log(this.name + " attacking!");
+            // Check for removal
+            CheckForRemoval();
         }
 
         if (taskMgr.TaskIsActive())
