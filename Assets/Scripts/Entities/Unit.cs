@@ -45,10 +45,15 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
         entity = this.gameObject.GetComponent<Entity>();
         curState = State.IDLE;
         anim.SetFloat("Speed_f", 0.0f);
-        anim.SetInteger("MeleeType_int", 1);
-        anim.SetInteger("WeaponType_int", 0);
-        anim.SetInteger("Animation_int", 2);
-        anim.SetBool("Static_b", true);
+
+        if (type == Type.HUMANOID)
+        {
+            anim.SetInteger("MeleeType_int", 1);
+            anim.SetInteger("WeaponType_int", 0);
+            anim.SetInteger("Animation_int", 2);
+            anim.SetBool("Static_b", true);
+        }
+
         attackScript = this.gameObject.GetComponent<AttackScript>();
         detCol = gameObject.GetComponentInChildren<DetectionCollider>();
 
