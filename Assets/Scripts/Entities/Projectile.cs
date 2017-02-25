@@ -9,15 +9,22 @@ public class Projectile : MonoBehaviour
     public Vector3 dir;
     public GameObject srcObject;
     public AudioClip[] hitSounds;
+    public float lifetime = 5.0f;
+    private float startTime;
 
 	// Use this for initialization
 	void Start ()
     {
+        startTime = Time.time;
     }
 
     // Update is called once per frame
     void Update ()
     {
+        if (Time.time - startTime >= lifetime)
+        {
+            Destroy(this.gameObject);
+        }
 	}
 
     private void OnTriggerEnter(Collider other)
