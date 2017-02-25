@@ -769,7 +769,7 @@ Transform:
   m_GameObject: {fileID: 1153012378993422}
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
   m_LocalPosition: {x: 185.19788, y: 0, z: -1043.1064}
-  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
+  m_LocalScale: {x: 1.3, y: 1.3, z: 1.3}
   m_Children:
   - {fileID: 4280350587507258}
   - {fileID: 4634923626678838}
@@ -887,8 +887,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   curState: 0
   statusTextIndex: 1
-  deathSound: {fileID: 8300000, guid: 67960e70d9aaf65459f403bc92ee53a1, type: 3}
-  hurtSounds: []
+  deathSounds:
+  - {fileID: 8300000, guid: 67960e70d9aaf65459f403bc92ee53a1, type: 3}
+  - {fileID: 8300000, guid: db08211a84bca6443a10a4baf9d78a17, type: 3}
+  hurtSounds:
+  - {fileID: 8300000, guid: 9859a84771c972f42b2a8bb21e5c872c, type: 3}
   type: 1
 --- !u!114 &114378034091572316
 MonoBehaviour:
@@ -910,9 +913,9 @@ MonoBehaviour:
   projectilePrefab: {fileID: 0}
   weaponPrefab: {fileID: 191736, guid: 6f7c858d0da9d054e80d6c60306d3cfa, type: 2}
   targetObj: {fileID: 0}
-  attackSounds:
-  - {fileID: 8300000, guid: c5793a26eccf14d41823331074172019, type: 3}
-  hitSounds: []
+  attackSounds: []
+  hitSounds:
+  - {fileID: 8300000, guid: 4a10c577ae93f1f458756cc5c44ef336, type: 3}
 --- !u!114 &114415045505804070
 MonoBehaviour:
   m_ObjectHideFlags: 1

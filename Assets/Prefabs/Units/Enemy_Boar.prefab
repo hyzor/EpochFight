@@ -1347,7 +1347,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   curState: 0
   statusTextIndex: 1
-  deathSound: {fileID: 8300000, guid: 1b06646731488cb40bef9a3144c4c53d, type: 3}
+  deathSounds:
+  - {fileID: 8300000, guid: 1b06646731488cb40bef9a3144c4c53d, type: 3}
   hurtSounds:
   - {fileID: 8300000, guid: d8332314b91fab445b3a5cfa82863235, type: 3}
   type: 2

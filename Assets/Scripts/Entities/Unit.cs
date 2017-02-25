@@ -32,7 +32,7 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
     private DetectionCollider detCol;
     private bool isPlayerUnit;
 
-    public AudioClip deathSound;
+    public List<AudioClip> deathSounds = new List<AudioClip>();
     public List<AudioClip> hurtSounds = new List<AudioClip>();
 
     public Type type;
@@ -67,8 +67,8 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
     {
         entity.isAlive = false;
 
-        if (deathSound != null)
-            SoundManager.instance.PlaySingleClip(deathSound);
+        if (deathSounds.Count > 0)
+            SoundManager.instance.RandomizeSfx(deathSounds.ToArray());
 
         if (type == Type.HUMANOID)
         {
