@@ -133,6 +133,9 @@ public class AttackTask : BaseTask
         {
             if (Time.time - lastAttackFinishedTime >= attackScript.cooldown)
             {
+                if (attackScript.HasWeapon())
+                    attackScript.UnsheatheWeapon();
+
                 attackScript.BeginAttack();
 
                 yield return new WaitForSeconds(attackScript.duration); // Attack speed
@@ -152,6 +155,9 @@ public class AttackTask : BaseTask
                     // Is target still within range?
                     if (TargetIsWithinRange())
                     {
+                        if (attackScript.HasWeapon())
+                            attackScript.SheatheWeapon();
+
                         attackScript.DoAttack();
                     }
                 }
@@ -164,6 +170,9 @@ public class AttackTask : BaseTask
             }
 
         } while (taskTargetObj != null && entityTarget.isAlive && TargetIsWithinRange());
+
+        if (!attackScript.WeaponIsSheathed())
+            attackScript.SheatheWeapon();
 
         if (taskTargetObj != null)
         {

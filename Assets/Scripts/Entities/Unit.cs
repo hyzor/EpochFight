@@ -297,6 +297,12 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
     {
         if (entity.isAlive)
         {
+            if (attackScript.HasWeapon())
+            {
+                if (!attackScript.WeaponIsSheathed())
+                    attackScript.SheatheWeapon();
+            }
+
             OrderUnitResume();
             navMeshAgent.SetDestination(coords);
             curState = State.TRAVELING;

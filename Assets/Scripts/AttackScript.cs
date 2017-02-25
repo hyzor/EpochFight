@@ -52,6 +52,8 @@ public class AttackScript : MonoBehaviour
     private Vector3 weaponAttackPos;
     private Vector3 weaponAttackRot;
 
+    private bool weaponSheathed;
+
     // Use this for initialization
     void Start()
     {
@@ -90,7 +92,15 @@ public class AttackScript : MonoBehaviour
                     weaponInstance.transform.localPosition = Vector3.zero;
                     weaponInstance.transform.localScale = weaponInstance.transform.parent.localScale;
                     weaponInstance.transform.forward = this.gameObject.transform.forward;
-                    weaponInstance.transform.Rotate(new Vector3(90.0f, 0.0f, 0.0f));
+
+                    weaponSheathPos = Vector3.zero;
+                    weaponSheathRot = new Vector3(90.0f, 0.0f, 0.0f);
+
+                    weaponAttackPos = Vector3.zero;
+                    weaponAttackRot = new Vector3(90.0f, 0.0f, 0.0f);
+
+                    weaponSheathed = true;
+                    weaponInstance.transform.Rotate(weaponSheathRot);
                 }
 
                 if (offHandInstance != null)
@@ -116,7 +126,15 @@ public class AttackScript : MonoBehaviour
                     weaponInstance.transform.localPosition = Vector3.zero;
                     weaponInstance.transform.localScale = weaponInstance.transform.parent.localScale;
                     weaponInstance.transform.forward = this.gameObject.transform.forward;
-                    weaponInstance.transform.Rotate(new Vector3(90.0f, 0.0f, 0.0f));
+
+                    weaponSheathPos = Vector3.zero;
+                    weaponSheathRot = new Vector3(90.0f, 0.0f, 0.0f);
+
+                    weaponAttackPos = Vector3.zero;
+                    weaponAttackRot = new Vector3(90.0f, 0.0f, 0.0f);
+
+                    weaponSheathed = true;
+                    weaponInstance.transform.Rotate(weaponSheathRot);
                 }
 
                 break;
@@ -141,6 +159,7 @@ public class AttackScript : MonoBehaviour
                     weaponAttackRot = Vector3.zero;
 
                     // Weapon starts at sheath position
+                    weaponSheathed = true;
                     weaponInstance.transform.Translate(weaponSheathPos);
                     weaponInstance.transform.Rotate(weaponSheathRot);
                 }
@@ -182,15 +201,6 @@ public class AttackScript : MonoBehaviour
             case AttackType.RANGED_BOW:
                 if (anim != null)
                 {
-                    if (weaponInstance != null)
-                    {
-                        weaponInstance.transform.Rotate(-weaponSheathRot);
-                        weaponInstance.transform.Translate(-weaponSheathPos);
-
-                        weaponInstance.transform.Translate(weaponAttackPos);
-                        weaponInstance.transform.Rotate(weaponAttackRot);
-                    }
-
                     anim.Play("BowShoot", 0, 0.0f);
                     anim.Play("Bow_Shoot", 6, 0.0f);
                     anim.SetFloat("Speed_f", 0.0f);
@@ -202,6 +212,41 @@ public class AttackScript : MonoBehaviour
                 }
                 break;
             }
+    }
+
+    public void SheatheWeapon()
+    {
+        weaponSheathed = true;
+
+        weaponInstance.transform.Rotate(-weaponAttackRot);
+        weaponInstance.transform.Translate(-weaponAttackPos);
+
+        weaponInstance.transform.Translate(weaponSheathPos);
+        weaponInstance.transform.Rotate(weaponSheathRot);
+    }
+
+    public void UnsheatheWeapon()
+    {
+        weaponSheathed = false;
+
+        weaponInstance.transform.Rotate(-weaponSheathRot);
+        weaponInstance.transform.Translate(-weaponSheathPos);
+
+        weaponInstance.transform.Translate(weaponAttackPos);
+        weaponInstance.transform.Rotate(weaponAttackRot);
+    }
+
+    public bool HasWeapon()
+    {
+        if (weaponInstance != null)
+            return true;
+
+        return false;
+    }
+
+    public bool WeaponIsSheathed()
+    {
+        return weaponSheathed;
     }
 
     public void DoAttack()
@@ -233,15 +278,6 @@ public class AttackScript : MonoBehaviour
                 {
                     //anim.Play("Bow_Idle", 6, 0.0f);
                     //anim.SetBool("Shoot_b", false);
-                }
-
-                if (weaponInstance != null)
-                {
-                    weaponInstance.transform.Rotate(-weaponAttackRot);
-                    weaponInstance.transform.Translate(-weaponAttackPos);
-
-                    weaponInstance.transform.Translate(weaponSheathPos);
-                    weaponInstance.transform.Rotate(weaponSheathRot);
                 }
 
                 if (attackSounds.Count > 0)
