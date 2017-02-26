@@ -349,7 +349,7 @@ GameObject:
   - component: {fileID: 4784756580075482}
   - component: {fileID: 137352095531023268}
   m_Layer: 0
-  m_Name: SF_Character_Knight_01
+  m_Name: SF_Character_Knight_Enemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -701,7 +701,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1322534215635824}
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 165.95, y: 0, z: -1036.02}
+  m_LocalPosition: {x: 184.65796, y: 0, z: -1020.5761}
   m_LocalScale: {x: 1.6, y: 1.6, z: 1.6}
   m_Children:
   - {fileID: 4222790863546070}
@@ -1007,7 +1007,7 @@ SkinnedMeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 2100000, guid: 6b8c1e42adf4bea4d848c976d29c281d, type: 2}
+  - {fileID: 2100000, guid: 0b256d0a3d74e1e4993e96f6ec17e516, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

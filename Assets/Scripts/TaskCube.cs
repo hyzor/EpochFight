@@ -23,17 +23,6 @@ public class TaskCube : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
     {
-        /*   renderer.material.color = Color.green;
-
-           foreach (Collider collider in colliders)
-           {
-               if (collider.gameObject.GetComponent<Entity>() != null)
-               {
-                   renderer.material.color = Color.red;
-                   return;
-               }
-           }
-           */
     }
 
     private void FixedUpdate()

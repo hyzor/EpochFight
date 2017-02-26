@@ -1,24 +1,9 @@
-/*
-Necromancer GUI Demo Script
-Author: Jason Wentzel
-jc_wentzel@ironboundstudios.com
-
-In this script you'll find some handy little functions for some of the 
-Custom elements in the skin, these should help you create your own;
-
-AddSpikes (not perfect but works well enough if you’re careful with your window widths)
-FancyTop (just an example of using the elements to do a centered header graphic)
-WaxSeal (adds the waxseal and ribbon to the right of the window)
-DeathBadge (adds the iconFrame, skull, and ribbon elements properly aligned)
-
-*/
-
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 using System;
 
-public class GuiNecroScript : MonoBehaviour
+public class TaskBarScript : MonoBehaviour
 {
     // Necro skin control attributes
     private float leafOffset;
@@ -283,6 +268,27 @@ public class GuiNecroScript : MonoBehaviour
         windowTaskBarTopBar.y = windowTaskBar.y - windowBarHeight;
         GUI.Label(windowTaskBarTopBar, "", "WindowBar");
 
+        if (btnPressed)
+        {
+            // Invalid position
+            if (windowTaskBar.Contains(ev.mousePosition))
+            {
+                taskObj.SetActive(false);
+            }
+
+            // Invalid position
+            else if (windowTaskBarTopBar.Contains(ev.mousePosition))
+            {
+                taskObj.SetActive(false);
+            }
+
+            // Valid position
+            else
+            {
+                taskObj.SetActive(true);
+            }
+        }
+
         // Update bar task "buttons"
         for (int i = 0; i < taskBtns.Length; ++i)
         {
@@ -350,6 +356,8 @@ public class GuiNecroScript : MonoBehaviour
                     TaskCube taskCube = taskCubeInstance.GetComponent<TaskCube>();
 
                     if (taskCube.isColliding)
+                        Destroy(taskObj);
+                    else if (taskObj.activeSelf == false)
                         Destroy(taskObj);
 
                     Destroy(taskCubeInstance);

@@ -421,7 +421,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1685884401130756}
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 193.69, y: 0, z: -1039.56}
+  m_LocalPosition: {x: 177.49036, y: 0, z: -1032.4475}
   m_LocalScale: {x: 1.3, y: 1.3, z: 1.3}
   m_Children:
   - {fileID: 4498651349279000}
@@ -954,9 +954,11 @@ MonoBehaviour:
   range: 4
   damage: 1
   attackType: 1
+  offHandType: 0
   isRanged: 0
   projectilePrefab: {fileID: 0}
   weaponPrefab: {fileID: 191736, guid: 6f7c858d0da9d054e80d6c60306d3cfa, type: 2}
+  offHandPrefab: {fileID: 0}
   targetObj: {fileID: 0}
   attackSounds: []
   hitSounds:
