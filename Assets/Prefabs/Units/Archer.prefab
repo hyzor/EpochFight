@@ -943,7 +943,7 @@ MonoBehaviour:
   duration: 1.15
   cooldown: 1
   range: 40
-  damage: 0
+  damage: 1
   attackType: 3
   offHandType: 0
   isRanged: 1
