@@ -70,7 +70,7 @@ public class GuiNecroScript : MonoBehaviour
     public static int numTasks = 5;
     public static int numBtns = 4;
 
-    public GUIContent[] btnContents = new GUIContent[numTasks];
+    public Dictionary<GameObject, GUIContent> btns = new Dictionary<GameObject, GUIContent>();
 
     private bool btnPressed = false;
 
@@ -83,21 +83,37 @@ public class GuiNecroScript : MonoBehaviour
 
     private int objLayerCache;
 
-    private struct TaskButton
+    [Serializable]
+    public struct Task
+    {
+        public GUIContent btnContent;
+        public GameObject taskObj;
+    }
+
+    [Serializable]
+    public struct TaskButton
     {
         public Rect rect;
         public Vector2 origPos;
         public bool isPressed;
-        public GUIContent content;
+        public GUIContent btnContent;
+        public GameObject taskObj;
+        public Task task;
     }
 
-    private TaskButton[] taskBtns = new TaskButton[numBtns];
+    public TaskButton[] taskBtns = new TaskButton[numBtns];
+    public Task[] tasks = new Task[numTasks];
 
     private void OnValidate()
     {
-        if (btnContents.Length != numTasks)
+        if (taskBtns.Length != numBtns)
         {
-            Array.Resize(ref btnContents, numBtns);
+            Array.Resize(ref taskBtns, numTasks);
+        }
+
+        if (tasks.Length != numTasks)
+        {
+            Array.Resize(ref tasks, numBtns);
         }
     }
 
@@ -168,7 +184,8 @@ public class GuiNecroScript : MonoBehaviour
             taskBtns[i].rect = btnRect;
             taskBtns[i].rect.x = windowTaskBar.x + (btnWidth * 0.25f) + (btnWidth * i) + (btnPadding * i);
             taskBtns[i].rect.y = windowTaskBar.y + (btnHeight * 0.25f);
-            taskBtns[i].content = btnContents[i];
+            taskBtns[i].btnContent = tasks[i].btnContent;
+            taskBtns[i].taskObj = tasks[i].taskObj;
         }
     }
 
@@ -278,7 +295,7 @@ public class GuiNecroScript : MonoBehaviour
                 {
                     if (!taskBtns[i].isPressed)
                     {
-                        taskObj = Instantiate(taskPrefab);
+                        taskObj = Instantiate(taskBtns[i].taskObj);
                         taskCubeInstance = Instantiate(taskCubePrefab);
                         taskCubeInstance.transform.SetParent(taskObj.transform);
 
@@ -358,7 +375,7 @@ public class GuiNecroScript : MonoBehaviour
                 taskBtns[i].rect.y = windowTaskBar.y + (btnHeight * 0.25f);
             }
 
-            GUI.Button(taskBtns[i].rect, taskBtns[i].content);
+            GUI.Button(taskBtns[i].rect, taskBtns[i].btnContent);
         }
     }
 }
