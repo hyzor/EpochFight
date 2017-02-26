@@ -297,10 +297,13 @@ public class Unit : MonoBehaviour, IClickable, IUnitMessageHandler
     {
         if (entity.isAlive)
         {
-            if (attackScript.HasWeapon())
+            if (attackScript != null)
             {
-                if (!attackScript.WeaponIsSheathed())
-                    attackScript.SheatheWeapon();
+                if (attackScript.HasWeapon())
+                {
+                    if (!attackScript.WeaponIsSheathed())
+                        attackScript.SheatheWeapon();
+                }
             }
 
             OrderUnitResume();
