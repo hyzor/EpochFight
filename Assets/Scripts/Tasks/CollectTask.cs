@@ -28,7 +28,7 @@ public class CollectTask : BaseTask
         numResources = 0;
 
         // TODO: Fix this ugly code
-        Transform canvasResourceTextTrans = GameObject.Find("Canvas_Overlay").transform.FindChild("ResourceText");
+        Transform canvasResourceTextTrans = GameObject.Find("Canvas_Overlay").transform.Find("ResourceText");
 
         worker = this.gameObject.transform.parent.GetComponent<Worker>();
         resourceCanvasElement = canvasResourceTextTrans.gameObject;
